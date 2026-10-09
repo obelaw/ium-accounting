@@ -1,0 +1,54 @@
+{
+    "name": "obelaw/ium-accounting",
+    "description": "Financial Management & Accounting (FMS) Domain Module for Obelawium ERP",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Obelaw Team",
+            "email": "consulting@obelaw.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../ium"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "obelaw/ium": "*",
+        "illuminate/database": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "illuminate/validation": "^11.0|^12.0|^13.0",
+        "illuminate/events": "^11.0|^12.0|^13.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.0|^4.0",
+        "pestphp/pest-plugin-laravel": "^3.0|^4.0",
+        "orchestra/testbench": "^9.0|^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Obelaw\\Ium\\Accounting\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Obelaw\\Ium\\Accounting\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Obelaw\\Ium\\Accounting\\Providers\\ObelawAccountingServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
