@@ -8,11 +8,13 @@ use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\ServiceProvider;
 use Obelaw\Ium\Accounting\AccountingDomain;
 use Obelaw\Ium\Accounting\AccountingManager;
+use Obelaw\Ium\Accounting\Console\Commands\SeedAccountingDemoCommand;
 use Obelaw\Ium\Accounting\Services\AccountService;
 use Obelaw\Ium\Accounting\Services\AclIngestionService;
 use Obelaw\Ium\Accounting\Services\AuditService;
 use Obelaw\Ium\Accounting\Services\ClosingService;
 use Obelaw\Ium\Accounting\Services\CostCenterService;
+use Obelaw\Ium\Accounting\Services\CurrencyService;
 use Obelaw\Ium\Accounting\Services\FiscalPeriodService;
 use Obelaw\Ium\Accounting\Services\JournalEntryService;
 use Obelaw\Ium\Accounting\Services\LedgerService;
@@ -37,6 +39,10 @@ final class ObelawAccountingServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
         if ($this->app->runningInConsole()) {
+            $this->commands([
+                SeedAccountingDemoCommand::class,
+            ]);
+
             $this->publishes([
                 __DIR__ . '/../../database/migrations' => database_path('migrations'),
             ], 'ium-accounting-migrations');
@@ -44,6 +50,10 @@ final class ObelawAccountingServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../../config/accounting.php' => config_path('ium/accounting.php'),
             ], 'ium-accounting-config');
+
+            $this->publishes([
+                __DIR__ . '/../../database/seeders' => database_path('seeders'),
+            ], 'ium-accounting-seeders');
         }
 
         AboutCommand::add('Obelawium', static fn() => ['Obelawium Accounting' => '0.1.0']);
@@ -60,6 +70,7 @@ final class ObelawAccountingServiceProvider extends ServiceProvider
             ClosingService::class,
             AuditService::class,
             AclIngestionService::class,
+            CurrencyService::class,
         ];
 
         foreach ($services as $service) {
