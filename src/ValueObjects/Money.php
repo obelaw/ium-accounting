@@ -25,6 +25,20 @@ final readonly class Money
         return new self((float) $amount, strtoupper(trim($currency)));
     }
 
+    public static function fromMinor(int $minorUnits, string $currency = 'USD', ?int $precision = null): self
+    {
+        $prec = $precision ?? 2;
+
+        return new self(round($minorUnits / (10 ** $prec), $prec), strtoupper(trim($currency)));
+    }
+
+    public function toMinorUnits(?int $precision = null): int
+    {
+        $prec = $precision ?? 2;
+
+        return (int) round($this->amount * (10 ** $prec));
+    }
+
     public function add(self $other): self
     {
         $this->assertSameCurrency($other);
@@ -52,6 +66,22 @@ final readonly class Money
     public function isPositive(): bool
     {
         return $this->amount > 0.00001;
+    }
+
+    /**
+     * Convert this Money instance to a target currency using CurrencyService.
+     */
+    public function convertTo(string $targetCurrency, ?\Obelaw\Ium\Accounting\Services\CurrencyService $service = null, ?string $date = null): self
+    {
+        $targetCurrency = strtoupper(trim($targetCurrency));
+        if ($this->currency === $targetCurrency) {
+            return $this;
+        }
+
+        $service ??= app(\Obelaw\Ium\Accounting\Services\CurrencyService::class);
+        $converted = $service->convert($this->amount, $this->currency, $targetCurrency, $date);
+
+        return new self($converted, $targetCurrency);
     }
 
     private function assertSameCurrency(self $other): void

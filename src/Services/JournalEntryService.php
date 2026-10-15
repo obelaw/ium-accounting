@@ -74,8 +74,8 @@ class JournalEntryService
             $entryNumber = $dto->entryNumber ?? $this->generateNextEntryNumber();
 
             // Calculate totals and validate accounts
-            $totalDebit = 0.0;
-            $totalCredit = 0.0;
+            $totalDebit = 0;
+            $totalCredit = 0;
 
             foreach ($dto->lines as $lineDto) {
                 $account = Account::find($lineDto->accountId);
@@ -93,9 +93,25 @@ class JournalEntryService
                 }
 
                 if ($lineDto->type === PostingSide::DEBIT) {
-                    $totalDebit += $lineDto->amount;
+                    $totalDebit += (int) $lineDto->amount;
                 } else {
-                    $totalCredit += $lineDto->amount;
+                    $totalCredit += (int) $lineDto->amount;
+                }
+            }
+
+            $exchangeRate = $dto->exchangeRate;
+            if ($exchangeRate === 1.0 && strtoupper($dto->currency) !== 'USD') {
+                try {
+                    $currencyService = app(CurrencyService::class);
+                    $baseCurrency = $currencyService->getBaseCurrency();
+                    if (strtoupper($dto->currency) !== $baseCurrency->code) {
+                        $resolvedRate = $currencyService->getRate($dto->currency, $baseCurrency->code, $entryDate);
+                        if ($resolvedRate > 0) {
+                            $exchangeRate = $resolvedRate;
+                        }
+                    }
+                } catch (\Throwable) {
+                    // Fall back to provided rate
                 }
             }
 
@@ -107,9 +123,9 @@ class JournalEntryService
                 'entry_type' => $dto->entryType,
                 'narration' => $dto->narration,
                 'currency' => $dto->currency,
-                'exchange_rate' => $dto->exchangeRate,
-                'total_debit' => round($totalDebit, 4),
-                'total_credit' => round($totalCredit, 4),
+                'exchange_rate' => $exchangeRate,
+                'total_debit' => $totalDebit,
+                'total_credit' => $totalCredit,
                 'creator_id' => $dto->creatorId,
                 'source_type' => $dto->sourceType,
                 'source_id' => $dto->sourceId,
@@ -119,7 +135,7 @@ class JournalEntryService
             // Persist lines
             $lineIdx = 1;
             foreach ($dto->lines as $lineDto) {
-                $functionalAmount = $lineDto->amountFunctional ?? ($lineDto->amount * $dto->exchangeRate);
+                $functionalAmount = $lineDto->amountFunctional ?? (int) round($lineDto->amount * $exchangeRate);
 
                 JournalEntryLine::create([
                     'journal_entry_id' => $entry->id,
@@ -127,8 +143,8 @@ class JournalEntryService
                     'cost_center_id' => $lineDto->costCenterId,
                     'line_number' => $lineDto->lineNumber ?? $lineIdx++,
                     'type' => $lineDto->type,
-                    'amount' => $lineDto->amount,
-                    'amount_functional' => round($functionalAmount, 4),
+                    'amount' => (int) $lineDto->amount,
+                    'amount_functional' => (int) $functionalAmount,
                     'narration' => $lineDto->narration ?? $dto->narration,
                     'party_type' => $lineDto->partyType,
                     'party_id' => $lineDto->partyId,
@@ -371,8 +387,9 @@ class JournalEntryService
                 $reversalLines[] = new JournalEntryLineDto(
                     accountId: $line->account_id,
                     type: $line->type->opposite(),
-                    amount: $line->amount,
+                    amount: (int) $line->amount,
                     costCenterId: $line->cost_center_id,
+                    amountFunctional: (int) $line->amount_functional,
                     narration: sprintf('Reversal of JV #%s: %s', $original->entry_number, $reason),
                     partyType: $line->party_type,
                     partyId: $line->party_id,
@@ -435,19 +452,19 @@ class JournalEntryService
             throw new InvalidArgumentException(sprintf('Voucher "%s" has no line items.', $entry->entry_number));
         }
 
-        $totalDebit = 0.0;
-        $totalCredit = 0.0;
+        $totalDebit = 0;
+        $totalCredit = 0;
 
         foreach ($lines as $line) {
             if ($line->type === PostingSide::DEBIT) {
-                $totalDebit += $line->amount;
+                $totalDebit += (int) $line->amount;
             } else {
-                $totalCredit += $line->amount;
+                $totalCredit += (int) $line->amount;
             }
         }
 
         $imbalance = abs($totalDebit - $totalCredit);
-        if ($imbalance > 0.0001) {
+        if ($imbalance !== 0) {
             throw UnbalancedJournalEntryException::forVoucher(
                 $entry->entry_number,
                 $totalDebit,

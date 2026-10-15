@@ -19,8 +19,8 @@ return new class extends MigrationBase {
             $table->text('narration')->nullable();
             $table->string('currency', 3)->default('USD');
             $table->decimal('exchange_rate', 12, 6)->default(1.000000);
-            $table->decimal('total_debit', 18, 4)->default(0.0000);
-            $table->decimal('total_credit', 18, 4)->default(0.0000);
+            $table->bigInteger('total_debit')->default(0);
+            $table->bigInteger('total_credit')->default(0);
             $table->string('creator_id')->nullable()->index();
             $table->string('approver_id')->nullable()->index();
             $table->timestamp('posted_at')->nullable()->index();

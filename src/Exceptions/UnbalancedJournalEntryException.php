@@ -11,15 +11,19 @@ use DomainException;
  */
 class UnbalancedJournalEntryException extends DomainException
 {
-    public static function forVoucher(string $entryNumber, float $debitSum, float $creditSum, float $imbalance): self
+    public static function forVoucher(string $entryNumber, int|float $debitSum, int|float $creditSum, int|float $imbalance): self
     {
+        $debitDisplay = is_int($debitSum) ? (string) $debitSum : sprintf('%0.4f', $debitSum);
+        $creditDisplay = is_int($creditSum) ? (string) $creditSum : sprintf('%0.4f', $creditSum);
+        $imbalanceDisplay = is_int($imbalance) ? (string) $imbalance : sprintf('%0.4f', $imbalance);
+
         return new self(
             sprintf(
-                'Zero-sum invariant violated for voucher "%s": Total debits (%0.4f) do not equal total credits (%0.4f). Imbalance is %0.4f.',
+                'Zero-sum invariant violated for voucher "%s": Total debits (%s) do not equal total credits (%s). Imbalance is %s.',
                 $entryNumber,
-                $debitSum,
-                $creditSum,
-                $imbalance
+                $debitDisplay,
+                $creditDisplay,
+                $imbalanceDisplay
             )
         );
     }

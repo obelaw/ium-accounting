@@ -16,9 +16,9 @@ return new class extends MigrationBase {
             $table->unsignedBigInteger('journal_entry_line_id')->index();
             $table->unsignedBigInteger('fiscal_period_id')->nullable()->index();
             $table->date('posting_date')->index();
-            $table->decimal('debit', 18, 4)->default(0.0000);
-            $table->decimal('credit', 18, 4)->default(0.0000);
-            $table->decimal('balance_after', 18, 4);
+            $table->bigInteger('debit')->default(0);
+            $table->bigInteger('credit')->default(0);
+            $table->bigInteger('balance_after')->default(0);
             $table->text('narration')->nullable();
             $table->timestamps();
 

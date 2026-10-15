@@ -10,6 +10,7 @@ use Obelaw\Ium\Accounting\Services\AclIngestionService;
 use Obelaw\Ium\Accounting\Services\AuditService;
 use Obelaw\Ium\Accounting\Services\ClosingService;
 use Obelaw\Ium\Accounting\Services\CostCenterService;
+use Obelaw\Ium\Accounting\Services\CurrencyService;
 use Obelaw\Ium\Accounting\Services\FiscalPeriodService;
 use Obelaw\Ium\Accounting\Services\JournalEntryService;
 use Obelaw\Ium\Accounting\Services\LedgerService;
@@ -96,5 +97,13 @@ final class AccountingDomain extends Domain
     public function acl(): AclIngestionService
     {
         return $this->getManager()->acl();
+    }
+
+    /**
+     * Multi-Currency and foreign exchange conversion engine service.
+     */
+    public function currencies(): CurrencyService
+    {
+        return $this->getManager()->currencies();
     }
 }

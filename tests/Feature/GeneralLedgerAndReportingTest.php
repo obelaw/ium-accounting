@@ -102,14 +102,25 @@ test('trial balance maintains debit-credit parity across multiple posted transac
     $tb = $this->ledgerService->generateTrialBalance();
 
     expect($tb['is_balanced'])->toBeTrue()
-        ->and($tb['total_debit'])->toBe(14300.0)
-        ->and($tb['total_credit'])->toBe(14300.0)
-        ->and($tb['imbalance'])->toBe(0.0);
+        ->and($tb['total_debit'])->toBe(14300)
+        ->and($tb['total_credit'])->toBe(14300)
+        ->and($tb['imbalance'])->toBe(0);
 
     // Generate Income Statement
     $pnl = $this->ledgerService->generateIncomeStatement();
-    expect($pnl['revenues']['total'])->toBe(3500.0)
-        ->and($pnl['expenses']['total'])->toBe(800.0)
-        ->and($pnl['net_income'])->toBe(2700.0)
+    expect($pnl['revenues']['total'])->toBe(3500)
+        ->and($pnl['expenses']['total'])->toBe(800)
+        ->and($pnl['net_income'])->toBe(2700)
         ->and($pnl['is_profitable'])->toBeTrue();
+
+    // Generate Balance Sheet (Assets = Liabilities + Equity + Interim Net Income)
+    $bs = $this->ledgerService->generateBalanceSheet();
+    expect($bs['is_balanced'])->toBeTrue()
+        ->and($bs['discrepancy'])->toBe(0)
+        ->and($bs['assets']['total'])->toBe(13500)
+        ->and($bs['liabilities']['total'])->toBe(800)
+        ->and($bs['equity']['total'])->toBe(10000)
+        ->and($bs['equity']['current_year_earnings'])->toBe(2700)
+        ->and($bs['total_liabilities_and_equity'])->toBe(13500);
 });
+

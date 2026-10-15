@@ -10,6 +10,7 @@ namespace Obelaw\Ium\Accounting\Enums;
 enum AuditAction: string
 {
     case CREATED = 'created';
+    case UPDATED = 'updated';
     case SUBMITTED = 'submitted';
     case APPROVED = 'approved';
     case REJECTED = 'rejected';

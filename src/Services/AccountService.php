@@ -48,7 +48,7 @@ class AccountService
                 'is_leaf' => $dto->isLeaf,
                 'is_reconciliation' => $dto->isReconciliation,
                 'is_active' => $dto->isActive,
-                'current_balance' => 0.0,
+                'current_balance' => 0,
                 'metadata' => $dto->metadata,
             ]);
         });
@@ -117,21 +117,21 @@ class AccountService
     /**
      * Recalculate balance for an account from general ledger postings.
      */
-    public function recalculateBalance(int $accountId): float
+    public function recalculateBalance(int $accountId): int
     {
         return DB::transaction(function () use ($accountId) {
             $account = $this->findOrFail($accountId);
 
-            $debits = (float) $account->ledgerPostings()->sum('debit');
-            $credits = (float) $account->ledgerPostings()->sum('credit');
+            $debits = (int) $account->ledgerPostings()->sum('debit');
+            $credits = (int) $account->ledgerPostings()->sum('credit');
 
             $balance = $account->normal_balance->value === 'debit'
                 ? ($debits - $credits)
                 : ($credits - $debits);
 
-            $account->update(['current_balance' => round($balance, 4)]);
+            $account->update(['current_balance' => $balance]);
 
-            return $account->current_balance;
+            return (int) $account->current_balance;
         });
     }
 }

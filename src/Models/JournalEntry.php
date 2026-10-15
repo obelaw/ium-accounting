@@ -51,8 +51,8 @@ class JournalEntry extends ModelBase
         'status' => JournalEntryStatus::class,
         'entry_type' => JournalEntryType::class,
         'exchange_rate' => 'float',
-        'total_debit' => 'float',
-        'total_credit' => 'float',
+        'total_debit' => 'integer',
+        'total_credit' => 'integer',
         'posted_at' => 'datetime',
         'reversed_entry_id' => 'integer',
         'reversal_entry_id' => 'integer',
@@ -146,5 +146,37 @@ class JournalEntry extends ModelBase
     public function isApproved(): bool
     {
         return $this->status === JournalEntryStatus::APPROVED;
+    }
+
+    public function totalDebitMajor(?int $precision = null): float
+    {
+        $prec = $precision ?? 2;
+
+        return round($this->total_debit / (10 ** $prec), $prec);
+    }
+
+    public function totalCreditMajor(?int $precision = null): float
+    {
+        $prec = $precision ?? 2;
+
+        return round($this->total_credit / (10 ** $prec), $prec);
+    }
+
+    public function formatTotalDebit(?Currency $currency = null): string
+    {
+        if ($currency !== null) {
+            return $currency->formatMinor($this->total_debit);
+        }
+
+        return number_format($this->totalDebitMajor(), 2);
+    }
+
+    public function formatTotalCredit(?Currency $currency = null): string
+    {
+        if ($currency !== null) {
+            return $currency->formatMinor($this->total_credit);
+        }
+
+        return number_format($this->totalCreditMajor(), 2);
     }
 }

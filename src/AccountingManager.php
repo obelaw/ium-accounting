@@ -9,6 +9,7 @@ use Obelaw\Ium\Accounting\Services\AclIngestionService;
 use Obelaw\Ium\Accounting\Services\AuditService;
 use Obelaw\Ium\Accounting\Services\ClosingService;
 use Obelaw\Ium\Accounting\Services\CostCenterService;
+use Obelaw\Ium\Accounting\Services\CurrencyService;
 use Obelaw\Ium\Accounting\Services\FiscalPeriodService;
 use Obelaw\Ium\Accounting\Services\JournalEntryService;
 use Obelaw\Ium\Accounting\Services\LedgerService;
@@ -56,5 +57,10 @@ final class AccountingManager
     public function acl(): AclIngestionService
     {
         return app(AclIngestionService::class);
+    }
+
+    public function currencies(): CurrencyService
+    {
+        return app(CurrencyService::class);
     }
 }

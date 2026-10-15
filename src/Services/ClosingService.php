@@ -76,15 +76,15 @@ class ClosingService
             // Fetch nominal accounts with non-zero balances
             $nominalAccounts = Account::postingAccounts()
                 ->whereIn('type', [AccountType::REVENUE->value, AccountType::EXPENSE->value])
-                ->where('current_balance', '!=', 0.0)
+                ->where('current_balance', '!=', 0)
                 ->get();
 
             $closingLines = [];
-            $totalRevenue = 0.0;
-            $totalExpense = 0.0;
+            $totalRevenue = 0;
+            $totalExpense = 0;
 
             foreach ($nominalAccounts as $acc) {
-                $bal = abs($acc->current_balance);
+                $bal = abs((int) $acc->current_balance);
 
                 if ($acc->type === AccountType::REVENUE) {
                     $totalRevenue += $bal;

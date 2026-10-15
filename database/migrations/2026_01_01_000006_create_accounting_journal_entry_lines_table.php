@@ -16,8 +16,8 @@ return new class extends MigrationBase {
             $table->unsignedBigInteger('cost_center_id')->nullable()->index();
             $table->unsignedInteger('line_number')->default(1);
             $table->string('type'); // debit, credit
-            $table->decimal('amount', 18, 4);
-            $table->decimal('amount_functional', 18, 4);
+            $table->bigInteger('amount');
+            $table->bigInteger('amount_functional');
             $table->text('narration')->nullable();
             $table->nullableMorphs('party');
             $table->json('metadata')->nullable();

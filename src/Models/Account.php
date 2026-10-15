@@ -44,9 +44,25 @@ class Account extends ModelBase
         'is_leaf' => 'boolean',
         'is_reconciliation' => 'boolean',
         'is_active' => 'boolean',
-        'current_balance' => 'float',
+        'current_balance' => 'integer',
         'metadata' => 'array',
     ];
+
+    public function currentBalanceMajor(?int $precision = null): float
+    {
+        $prec = $precision ?? 2;
+
+        return round($this->current_balance / (10 ** $prec), $prec);
+    }
+
+    public function formatCurrentBalance(?Currency $currency = null): string
+    {
+        if ($currency !== null) {
+            return $currency->formatMinor($this->current_balance);
+        }
+
+        return number_format($this->currentBalanceMajor(), 2);
+    }
 
     public function parent(): BelongsTo
     {

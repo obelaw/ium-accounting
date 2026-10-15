@@ -40,8 +40,22 @@ final readonly class CreateJournalEntryDto
             throw new InvalidArgumentException('lines must be a non-empty array.');
         }
 
+        $isMajor = (bool) ($data['is_major'] ?? false);
+        $multiplier = (int) ($data['multiplier'] ?? 100);
+
         $lines = array_map(
-            static fn($line) => $line instanceof JournalEntryLineDto ? $line : JournalEntryLineDto::from((array) $line),
+            static function ($line) use ($isMajor, $multiplier) {
+                if ($line instanceof JournalEntryLineDto) {
+                    return $line;
+                }
+                $lineArr = (array) $line;
+                if ($isMajor && !isset($lineArr['is_major']) && !isset($lineArr['amount_major'])) {
+                    $lineArr['is_major'] = true;
+                    $lineArr['multiplier'] = $multiplier;
+                }
+
+                return JournalEntryLineDto::from($lineArr);
+            },
             $rawLines
         );
 
@@ -62,6 +76,14 @@ final readonly class CreateJournalEntryDto
             sourceId: isset($data['source_id']) ? (int) $data['source_id'] : null,
             metadata: (array) ($data['metadata'] ?? []),
         );
+    }
+
+    public static function fromMajor(array $data, int $multiplier = 100): self
+    {
+        $data['is_major'] = true;
+        $data['multiplier'] = $multiplier;
+
+        return self::from($data);
     }
 
     public function toArray(): array

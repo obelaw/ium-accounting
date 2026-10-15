@@ -27,5 +27,6 @@ test('fluent DSL resolves all accounting domain services', function () {
         ->and($accounting->costCenters())->toBeInstanceOf(CostCenterService::class)
         ->and($accounting->closing())->toBeInstanceOf(ClosingService::class)
         ->and($accounting->audit())->toBeInstanceOf(AuditService::class)
-        ->and($accounting->acl())->toBeInstanceOf(AclIngestionService::class);
+        ->and($accounting->acl())->toBeInstanceOf(AclIngestionService::class)
+        ->and($accounting->currencies())->toBeInstanceOf(\Obelaw\Ium\Accounting\Services\CurrencyService::class);
 });

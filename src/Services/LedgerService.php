@@ -24,15 +24,15 @@ class LedgerService
             foreach ($entry->lines as $line) {
                 $account = Account::findOrFail($line->account_id);
 
-                $debit = $line->type === PostingSide::DEBIT ? $line->amount_functional : 0.0;
-                $credit = $line->type === PostingSide::CREDIT ? $line->amount_functional : 0.0;
+                $debit = $line->type === PostingSide::DEBIT ? (int) $line->amount_functional : 0;
+                $credit = $line->type === PostingSide::CREDIT ? (int) $line->amount_functional : 0;
 
                 // Determine change based on normal balance
                 $delta = $account->normal_balance === NormalBalance::DEBIT
                     ? ($debit - $credit)
                     : ($credit - $debit);
 
-                $newBalance = round($account->current_balance + $delta, 4);
+                $newBalance = (int) ($account->current_balance + $delta);
 
                 // Write immutable GL posting record
                 GeneralLedgerPosting::create([
@@ -85,8 +85,8 @@ class LedgerService
         $accounts = Account::postingAccounts()->orderBy('code')->get();
 
         $rows = [];
-        $grandDebit = 0.0;
-        $grandCredit = 0.0;
+        $grandDebit = 0;
+        $grandCredit = 0;
 
         foreach ($accounts as $account) {
             $postingsQuery = $account->ledgerPostings();
@@ -94,10 +94,10 @@ class LedgerService
                 $postingsQuery->where('fiscal_period_id', $fiscalPeriodId);
             }
 
-            $totalDebit = (float) $postingsQuery->sum('debit');
-            $totalCredit = (float) $postingsQuery->sum('credit');
+            $totalDebit = (int) $postingsQuery->sum('debit');
+            $totalCredit = (int) $postingsQuery->sum('credit');
 
-            if ($totalDebit === 0.0 && $totalCredit === 0.0 && $account->current_balance === 0.0) {
+            if ($totalDebit === 0 && $totalCredit === 0 && (int) $account->current_balance === 0) {
                 continue;
             }
 
@@ -105,8 +105,8 @@ class LedgerService
                 ? ($totalDebit - $totalCredit)
                 : ($totalCredit - $totalDebit);
 
-            $debitColumn = $account->normal_balance === NormalBalance::DEBIT ? max(0.0, $netBalance) : 0.0;
-            $creditColumn = $account->normal_balance === NormalBalance::CREDIT ? max(0.0, $netBalance) : 0.0;
+            $debitColumn = $account->normal_balance === NormalBalance::DEBIT ? max(0, $netBalance) : 0;
+            $creditColumn = $account->normal_balance === NormalBalance::CREDIT ? max(0, $netBalance) : 0;
 
             $grandDebit += $debitColumn;
             $grandCredit += $creditColumn;
@@ -117,10 +117,14 @@ class LedgerService
                 'account_name' => $account->name,
                 'type' => $account->type->value,
                 'normal_balance' => $account->normal_balance->value,
-                'total_debit' => round($totalDebit, 4),
-                'total_credit' => round($totalCredit, 4),
-                'debit_balance' => round($debitColumn, 4),
-                'credit_balance' => round($creditColumn, 4),
+                'total_debit' => $totalDebit,
+                'total_credit' => $totalCredit,
+                'debit_balance' => $debitColumn,
+                'credit_balance' => $creditColumn,
+                'total_debit_major' => round($totalDebit / 100, 2),
+                'total_credit_major' => round($totalCredit / 100, 2),
+                'debit_balance_major' => round($debitColumn / 100, 2),
+                'credit_balance_major' => round($creditColumn / 100, 2),
             ];
         }
 
@@ -128,10 +132,12 @@ class LedgerService
 
         return [
             'accounts' => $rows,
-            'total_debit' => round($grandDebit, 4),
-            'total_credit' => round($grandCredit, 4),
-            'is_balanced' => $imbalance < 0.0001,
-            'imbalance' => round($imbalance, 4),
+            'total_debit' => $grandDebit,
+            'total_credit' => $grandCredit,
+            'total_debit_major' => round($grandDebit / 100, 2),
+            'total_credit_major' => round($grandCredit / 100, 2),
+            'is_balanced' => $imbalance === 0,
+            'imbalance' => $imbalance,
         ];
     }
 
@@ -147,12 +153,12 @@ class LedgerService
         $liabilities = [];
         $equity = [];
 
-        $totalAssets = 0.0;
-        $totalLiabilities = 0.0;
-        $totalEquity = 0.0;
+        $totalAssets = 0;
+        $totalLiabilities = 0;
+        $totalEquity = 0;
 
         foreach ($accounts as $account) {
-            $bal = $account->current_balance;
+            $bal = (int) $account->current_balance;
 
             match ($account->type) {
                 AccountType::ASSET => [
@@ -171,24 +177,36 @@ class LedgerService
             };
         }
 
-        $balanceDifference = abs($totalAssets - ($totalLiabilities + $totalEquity));
+        $pnl = $this->generateIncomeStatement();
+        $netIncome = $pnl['net_income'];
+        $totalEquityWithIncome = $totalEquity + $netIncome;
+
+        $balanceDifference = abs($totalAssets - ($totalLiabilities + $totalEquityWithIncome));
 
         return [
             'assets' => [
                 'items' => $assets,
-                'total' => round($totalAssets, 4),
+                'total' => $totalAssets,
+                'total_major' => round($totalAssets / 100, 2),
             ],
             'liabilities' => [
                 'items' => $liabilities,
-                'total' => round($totalLiabilities, 4),
+                'total' => $totalLiabilities,
+                'total_major' => round($totalLiabilities / 100, 2),
             ],
             'equity' => [
                 'items' => $equity,
-                'total' => round($totalEquity, 4),
+                'total' => $totalEquity,
+                'total_major' => round($totalEquity / 100, 2),
+                'current_year_earnings' => $netIncome,
+                'current_year_earnings_major' => round($netIncome / 100, 2),
+                'total_with_earnings' => $totalEquityWithIncome,
+                'total_with_earnings_major' => round($totalEquityWithIncome / 100, 2),
             ],
-            'total_liabilities_and_equity' => round($totalLiabilities + $totalEquity, 4),
-            'is_balanced' => $balanceDifference < 0.0001,
-            'discrepancy' => round($balanceDifference, 4),
+            'total_liabilities_and_equity' => $totalLiabilities + $totalEquityWithIncome,
+            'total_liabilities_and_equity_major' => round(($totalLiabilities + $totalEquityWithIncome) / 100, 2),
+            'is_balanced' => $balanceDifference === 0,
+            'discrepancy' => $balanceDifference,
         ];
     }
 
@@ -204,11 +222,11 @@ class LedgerService
         $revenues = [];
         $expenses = [];
 
-        $totalRevenue = 0.0;
-        $totalExpense = 0.0;
+        $totalRevenue = 0;
+        $totalExpense = 0;
 
         foreach ($accounts as $account) {
-            $bal = $account->current_balance;
+            $bal = (int) $account->current_balance;
 
             if ($account->type === AccountType::REVENUE) {
                 $revenues[] = ['code' => $account->code, 'name' => $account->name, 'balance' => $bal];
@@ -224,13 +242,16 @@ class LedgerService
         return [
             'revenues' => [
                 'items' => $revenues,
-                'total' => round($totalRevenue, 4),
+                'total' => $totalRevenue,
+                'total_major' => round($totalRevenue / 100, 2),
             ],
             'expenses' => [
                 'items' => $expenses,
-                'total' => round($totalExpense, 4),
+                'total' => $totalExpense,
+                'total_major' => round($totalExpense / 100, 2),
             ],
-            'net_income' => round($netIncome, 4),
+            'net_income' => $netIncome,
+            'net_income_major' => round($netIncome / 100, 2),
             'is_profitable' => $netIncome > 0,
         ];
     }

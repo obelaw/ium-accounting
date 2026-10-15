@@ -52,10 +52,10 @@ test('anti-corruption layer ingests upstream InvoiceCreated event and generates 
     ]));
 
     expect($entry->isPosted())->toBeTrue()
-        ->and($entry->total_debit)->toBe(4500.0)
-        ->and($entry->total_credit)->toBe(4500.0)
-        ->and($this->ar->fresh()->current_balance)->toBe(4500.0)
-        ->and($this->sales->fresh()->current_balance)->toBe(4500.0);
+        ->and($entry->total_debit)->toBe(4500)
+        ->and($entry->total_credit)->toBe(4500)
+        ->and($this->ar->fresh()->current_balance)->toBe(4500)
+        ->and($this->sales->fresh()->current_balance)->toBe(4500);
 });
 
 test('anti-corruption layer ingests PaymentReceived event and clears receivables', function () {
@@ -70,7 +70,7 @@ test('anti-corruption layer ingests PaymentReceived event and clears receivables
         'auto_post' => true,
     ]));
 
-    expect($this->ar->fresh()->current_balance)->toBe(4500.0);
+    expect($this->ar->fresh()->current_balance)->toBe(4500);
 
     // 2. Payment received clears receivable: Debit Bank (1020), Credit AR (1200)
     $this->aclService->registerMapping('PaymentReceived', '1020', '1200');
@@ -85,6 +85,6 @@ test('anti-corruption layer ingests PaymentReceived event and clears receivables
     ]));
 
     expect($entry->isPosted())->toBeTrue()
-        ->and($this->bank->fresh()->current_balance)->toBe(4500.0)
-        ->and($this->ar->fresh()->current_balance)->toBe(0.0);
+        ->and($this->bank->fresh()->current_balance)->toBe(4500)
+        ->and($this->ar->fresh()->current_balance)->toBe(0);
 });

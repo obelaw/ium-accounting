@@ -38,8 +38,8 @@ class JournalEntryLine extends ModelBase
         'cost_center_id' => 'integer',
         'line_number' => 'integer',
         'type' => PostingSide::class,
-        'amount' => 'float',
-        'amount_functional' => 'float',
+        'amount' => 'integer',
+        'amount_functional' => 'integer',
         'party_id' => 'integer',
         'metadata' => 'array',
     ];
@@ -72,5 +72,42 @@ class JournalEntryLine extends ModelBase
     public function isCredit(): bool
     {
         return $this->type === PostingSide::CREDIT;
+    }
+
+    public function amountMajor(?int $precision = null): float
+    {
+        $prec = $precision ?? 2;
+
+        return round($this->amount / (10 ** $prec), $prec);
+    }
+
+    public function amountFunctionalMajor(?int $precision = null): ?float
+    {
+        if ($this->amount_functional === null) {
+            return null;
+        }
+
+        $prec = $precision ?? 2;
+
+        return round($this->amount_functional / (10 ** $prec), $prec);
+    }
+
+    public function formatAmount(?Currency $currency = null): string
+    {
+        if ($currency !== null) {
+            return $currency->formatMinor($this->amount);
+        }
+
+        return number_format($this->amountMajor(), 2);
+    }
+
+    public function formatAmountFunctional(?Currency $currency = null): string
+    {
+        $val = $this->amount_functional ?? 0;
+        if ($currency !== null) {
+            return $currency->formatMinor($val);
+        }
+
+        return number_format($this->amountFunctionalMajor() ?? 0.0, 2);
     }
 }

@@ -21,7 +21,7 @@ return new class extends MigrationBase {
             $table->boolean('is_leaf')->default(true);
             $table->boolean('is_reconciliation')->default(false);
             $table->boolean('is_active')->default(true);
-            $table->decimal('current_balance', 18, 4)->default(0.0000);
+            $table->bigInteger('current_balance')->default(0);
             $table->json('metadata')->nullable();
             $table->timestamps();
 

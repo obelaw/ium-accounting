@@ -35,9 +35,9 @@ class GeneralLedgerPosting extends ModelBase
         'journal_entry_line_id' => 'integer',
         'fiscal_period_id' => 'integer',
         'posting_date' => 'date',
-        'debit' => 'float',
-        'credit' => 'float',
-        'balance_after' => 'float',
+        'debit' => 'integer',
+        'credit' => 'integer',
+        'balance_after' => 'integer',
     ];
 
     /**
@@ -74,5 +74,53 @@ class GeneralLedgerPosting extends ModelBase
     public function fiscalPeriod(): BelongsTo
     {
         return $this->belongsTo(FiscalPeriod::class, 'fiscal_period_id');
+    }
+
+    public function debitMajor(?int $precision = null): float
+    {
+        $prec = $precision ?? 2;
+
+        return round($this->debit / (10 ** $prec), $prec);
+    }
+
+    public function creditMajor(?int $precision = null): float
+    {
+        $prec = $precision ?? 2;
+
+        return round($this->credit / (10 ** $prec), $prec);
+    }
+
+    public function balanceAfterMajor(?int $precision = null): float
+    {
+        $prec = $precision ?? 2;
+
+        return round($this->balance_after / (10 ** $prec), $prec);
+    }
+
+    public function formatDebit(?Currency $currency = null): string
+    {
+        if ($currency !== null) {
+            return $currency->formatMinor($this->debit);
+        }
+
+        return number_format($this->debitMajor(), 2);
+    }
+
+    public function formatCredit(?Currency $currency = null): string
+    {
+        if ($currency !== null) {
+            return $currency->formatMinor($this->credit);
+        }
+
+        return number_format($this->creditMajor(), 2);
+    }
+
+    public function formatBalanceAfter(?Currency $currency = null): string
+    {
+        if ($currency !== null) {
+            return $currency->formatMinor($this->balance_after);
+        }
+
+        return number_format($this->balanceAfterMajor(), 2);
     }
 }

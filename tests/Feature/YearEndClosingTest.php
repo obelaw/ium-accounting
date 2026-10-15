@@ -100,9 +100,9 @@ test('fiscal year-end closing zeroes out nominal accounts and transfers net prof
     ]));
     $this->journalService->post($jv2->id, 'sys');
 
-    expect($this->revenue->fresh()->current_balance)->toBe(50000.0)
-        ->and($this->cogs->fresh()->current_balance)->toBe(20000.0)
-        ->and($this->retained->fresh()->current_balance)->toBe(0.0);
+    expect($this->revenue->fresh()->current_balance)->toBe(50000)
+        ->and($this->cogs->fresh()->current_balance)->toBe(20000)
+        ->and($this->retained->fresh()->current_balance)->toBe(0);
 
     // Execute year-end close
     $closedYear = $this->closingService->closeFiscalYear(FiscalYearCloseDto::from([
@@ -115,9 +115,9 @@ test('fiscal year-end closing zeroes out nominal accounts and transfers net prof
         ->and($closedYear->closed_by)->toBe('controller-1');
 
     // Invariant: Nominal accounts are zeroed
-    expect($this->revenue->fresh()->current_balance)->toBe(0.0)
-        ->and($this->cogs->fresh()->current_balance)->toBe(0.0);
+    expect($this->revenue->fresh()->current_balance)->toBe(0)
+        ->and($this->cogs->fresh()->current_balance)->toBe(0);
 
     // Invariant: Net Profit (50,000 - 20,000 = 30,000) transferred to Retained Earnings
-    expect($this->retained->fresh()->current_balance)->toBe(30000.0);
+    expect($this->retained->fresh()->current_balance)->toBe(30000);
 });

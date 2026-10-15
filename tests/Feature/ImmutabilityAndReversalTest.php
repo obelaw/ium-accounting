@@ -71,8 +71,8 @@ test('reversing a posted voucher executes Storno correction and nets out balance
     $this->journalService->approve($entry->id, 'checker-1');
     $posted = $this->journalService->post($entry->id, 'poster-1');
 
-    expect($this->bank->fresh()->current_balance)->toBe(-3000.0)
-        ->and($this->rent->fresh()->current_balance)->toBe(3000.0);
+    expect($this->bank->fresh()->current_balance)->toBe(-3000)
+        ->and($this->rent->fresh()->current_balance)->toBe(3000);
 
     // Perform reversal
     $reversal = $this->journalService->reverse(
@@ -86,7 +86,7 @@ test('reversing a posted voucher executes Storno correction and nets out balance
         ->and($posted->fresh()->reversal_entry_id)->toBe($reversal->id)
         ->and($reversal->reversed_entry_id)->toBe($posted->id);
 
-    // Ledger balances net back to 0.00
-    expect($this->bank->fresh()->current_balance)->toBe(0.0)
-        ->and($this->rent->fresh()->current_balance)->toBe(0.0);
+    // Ledger balances net back to 0
+    expect($this->bank->fresh()->current_balance)->toBe(0)
+        ->and($this->rent->fresh()->current_balance)->toBe(0);
 });
