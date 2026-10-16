@@ -8,12 +8,6 @@
             "email": "consulting@obelaw.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../ium"
-        }
-    ],
     "require": {
         "php": "^8.2",
         "obelaw/ium": "*",
@@ -43,6 +37,9 @@
                 "Obelaw\\Ium\\Accounting\\Providers\\ObelawAccountingServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest"
     },
     "config": {
         "allow-plugins": {
