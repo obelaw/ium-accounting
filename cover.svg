@@ -1,0 +1,194 @@
+<svg width="1080" height="644" viewBox="0 0 1080 644" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="1080" height="644" fill="#FFFFFF" />
+
+    <!-- Ambient Organic Background Shapes (Obelaw Signature Style) -->
+    <g clip-path="url(#clip0_cover)">
+        <mask id="mask0_cover" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="90" y="0" width="900" height="600">
+            <path d="M90 0H990V600H90V0Z" fill="white" />
+        </mask>
+        <g mask="url(#mask0_cover)">
+            <path d="M790.153 292.613C812.494 231.304 729.168 67.4839 564.681 68.7159C488.179 69.2919 483.082 107.311 415.44 138.89C375.122 157.711 323.081 165.388 297.85 202.895C276.063 235.266 271.098 275.673 282.461 306.392C308.015 375.479 382.375 440.079 494.052 377.435C605.728 314.791 732.516 450.726 790.153 292.613Z" fill="url(#paint0_linear)" />
+            <path d="M618.968 470.065C664.651 432.483 711.918 392.195 762.99 379.799C815.672 367 820 384.748 816.587 410.206C813.175 435.664 783.376 490.165 711.775 506.532C640.155 522.904 576.22 505.239 618.968 470.065Z" fill="url(#paint1_linear)" />
+            <path d="M269.13 330.961C348.591 352.668 432.402 373.999 487.567 422.085C544.485 471.678 527.79 490.871 496.106 507.466C464.422 524.062 378.503 534.018 302.314 465.788C226.104 397.54 194.766 310.655 269.13 330.961Z" fill="url(#paint2_linear)" />
+        </g>
+    </g>
+
+    <!-- Emerald Ambient Radial Behind Core -->
+    <circle cx="540" cy="275" r="230" fill="url(#ambient_emerald)" opacity="0.22" />
+
+    <!-- Floating Decorative Accents (Obelaw Dots & Stars) -->
+    <circle cx="175" cy="235" r="4.5" fill="#059669" />
+    <circle cx="220" cy="380" r="3" fill="#D1FAE5" />
+    <circle cx="310" cy="135" r="3.5" fill="#059669" opacity="0.6" />
+    <circle cx="770" cy="125" r="4" fill="#CBD5E1" />
+    <circle cx="905" cy="255" r="5" fill="#059669" />
+    <circle cx="860" cy="415" r="3.5" fill="#D1FAE5" />
+    <circle cx="230" cy="485" r="4.5" fill="#CBD5E1" />
+    <circle cx="820" cy="495" r="4.5" fill="#059669" opacity="0.5" />
+    <path d="M 195 320 H 203 M 199 316 V 324" stroke="#059669" stroke-width="2" stroke-linecap="round" />
+    <path d="M 880 345 H 888 M 884 341 V 349" stroke="#059669" stroke-width="2" stroke-linecap="round" />
+    <path d="M 750 455 H 756 M 753 452 V 458" stroke="#D1FAE5" stroke-width="1.8" stroke-linecap="round" />
+    <path d="M 320 460 H 326 M 323 457 V 463" stroke="#D1FAE5" stroke-width="1.8" stroke-linecap="round" />
+
+    <!-- Center Accounting Orbital Circuit Rings -->
+    <circle cx="540" cy="275" r="190" stroke="#059669" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.25" fill="none" />
+    <circle cx="540" cy="275" r="135" stroke="#10B981" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.5" fill="none" />
+
+    <!-- Connecting Circuit / Data Paths to Primitives -->
+    <!-- Path to Zero-Sum Parity -->
+    <path d="M 540 275 C 475 275, 435 225, 395 215" stroke="url(#emerald_stroke)" stroke-width="3.5" stroke-linecap="round" fill="none" />
+    <!-- Path to Chart of Accounts -->
+    <path d="M 540 275 C 605 275, 645 225, 685 215" stroke="url(#emerald_stroke)" stroke-width="3.5" stroke-linecap="round" fill="none" />
+    <!-- Path to Storno Reversals -->
+    <path d="M 540 275 C 485 305, 455 350, 420 375" stroke="url(#emerald_stroke)" stroke-width="3.5" stroke-linecap="round" fill="none" />
+    <!-- Path to Multi-Currency -->
+    <path d="M 540 275 C 595 305, 625 350, 660 375" stroke="url(#emerald_stroke)" stroke-width="3.5" stroke-linecap="round" fill="none" />
+
+    <!-- Pulse Dots along Paths -->
+    <circle cx="450" cy="242" r="4" fill="#059669" />
+    <circle cx="630" cy="242" r="4" fill="#059669" />
+    <circle cx="468" cy="330" r="3.5" fill="#059669" />
+    <circle cx="612" cy="330" r="3.5" fill="#059669" />
+
+    <!-- Node 1: Zero-Sum Balance Invariant -->
+    <g transform="translate(235, 168)">
+        <rect x="0" y="0" width="170" height="92" rx="18" fill="white" stroke="#059669" stroke-width="2.5" filter="url(#card_shadow)" />
+        <rect x="14" y="14" width="76" height="20" rx="10" fill="#ECFDF5" />
+        <text x="52" y="28" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="800" fill="#059669" text-anchor="middle">ZERO-SUM</text>
+        <text x="154" y="29" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="900" fill="#0F172A" text-anchor="end">Δ = 0</text>
+        <!-- Balance parity bar -->
+        <line x1="16" y1="52" x2="154" y2="52" stroke="#E2E8F0" stroke-width="6" stroke-linecap="round" />
+        <line x1="16" y1="52" x2="85" y2="52" stroke="#059669" stroke-width="6" stroke-linecap="round" />
+        <line x1="85" y1="52" x2="154" y2="52" stroke="#10B981" stroke-width="6" stroke-linecap="round" />
+        <circle cx="85" cy="52" r="7" fill="#059669" />
+        <circle cx="85" cy="52" r="3" fill="white" />
+        <text x="16" y="74" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="700" fill="#059669">Σ Debits</text>
+        <text x="154" y="74" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="700" fill="#10B981" text-anchor="end">Σ Credits</text>
+    </g>
+
+    <!-- Node 2: Chart of Accounts (COA Hierarchy) -->
+    <g transform="translate(675, 168)">
+        <rect x="0" y="0" width="170" height="92" rx="18" fill="white" stroke="#059669" stroke-width="2.5" filter="url(#card_shadow)" />
+        <rect x="14" y="14" width="60" height="20" rx="10" fill="#ECFDF5" />
+        <text x="44" y="28" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="800" fill="#059669" text-anchor="middle">COA TREE</text>
+        <text x="154" y="29" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="12" font-weight="800" fill="#059669" text-anchor="end">Leaf-Only</text>
+        <!-- Hierarchy visual -->
+        <rect x="14" y="44" width="142" height="18" rx="9" fill="#059669" />
+        <text x="24" y="57" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="800" fill="white">1110 Cash &amp; Bank</text>
+        <text x="148" y="57" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="800" fill="white" text-anchor="end">✓ Leaf</text>
+        <rect x="14" y="68" width="85" height="13" rx="6.5" fill="#D1FAE5" />
+        <text x="22" y="78" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="8" font-weight="700" fill="#065F46">1000 Assets</text>
+        <rect x="105" y="68" width="51" height="13" rx="6.5" fill="#F1F5F9" />
+        <text x="130" y="78" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="8" font-weight="700" fill="#64748B" text-anchor="middle">Roll-up</text>
+    </g>
+
+    <!-- Node 3: Storno Reversal (GL Immutability) -->
+    <g transform="translate(245, 330)">
+        <rect x="0" y="0" width="160" height="88" rx="18" fill="white" stroke="#059669" stroke-width="2.5" filter="url(#card_shadow)" />
+        <rect x="14" y="14" width="60" height="20" rx="10" fill="#ECFDF5" />
+        <text x="44" y="28" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="800" fill="#059669" text-anchor="middle">STORNO</text>
+        <!-- Lock icon -->
+        <path d="M136 21 V18 C136 15 133 13 130 13 C127 13 124 15 124 18 V21 H122 V30 H138 V21 H136 Z M127 18 C127 16.5 128.5 15.5 130 15.5 C131.5 15.5 133 16.5 133 18 V21 H127 V18 Z" fill="#059669" />
+        <text x="16" y="58" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="18" font-weight="900" fill="#0F172A">IMMUTABLE</text>
+        <text x="16" y="74" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="700" fill="#059669">Storno Reversals Only</text>
+    </g>
+
+    <!-- Node 4: Multi-Currency (ISO 4217 & Daily FX) -->
+    <g transform="translate(675, 330)">
+        <rect x="0" y="0" width="160" height="88" rx="18" fill="white" stroke="#059669" stroke-width="2.5" filter="url(#card_shadow)" />
+        <rect x="14" y="14" width="76" height="20" rx="10" fill="#ECFDF5" />
+        <text x="52" y="28" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="800" fill="#059669" text-anchor="middle">CURRENCIES</text>
+        <text x="144" y="29" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="12" font-weight="900" fill="#0F172A" text-anchor="end">ISO 4217</text>
+        <!-- Currency Pills: USD, EUR, GBP, SAR -->
+        <rect x="14" y="46" width="30" height="26" rx="7" fill="#059669" />
+        <text x="29" y="63" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="11" font-weight="800" fill="white" text-anchor="middle">$</text>
+        <rect x="48" y="46" width="30" height="26" rx="7" fill="#10B981" />
+        <text x="63" y="63" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="11" font-weight="800" fill="white" text-anchor="middle">€</text>
+        <rect x="82" y="46" width="30" height="26" rx="7" fill="#0D9488" />
+        <text x="97" y="63" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="11" font-weight="800" fill="white" text-anchor="middle">£</text>
+        <rect x="116" y="46" width="30" height="26" rx="7" fill="#D1FAE5" />
+        <text x="131" y="63" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="800" fill="#047857" text-anchor="middle">SAR</text>
+    </g>
+
+    <!-- Center Accounting Ledger Core -->
+    <g transform="translate(540, 275)">
+        <!-- Ambient Core Glow Rings -->
+        <circle cx="0" cy="0" r="72" stroke="#059669" stroke-width="2" stroke-dasharray="6 6" opacity="0.4" fill="none" />
+        <circle cx="0" cy="0" r="60" fill="url(#core_emerald_grad)" filter="url(#core_shadow)" />
+        <circle cx="0" cy="0" r="50" fill="#059669" />
+        
+        <!-- Balance Scales Emblem in Pure Geometric Vectors -->
+        <!-- Center Pillar -->
+        <line x1="0" y1="-26" x2="0" y2="24" stroke="white" stroke-width="3" stroke-linecap="round" />
+        <!-- Top Fulcrum / Beam -->
+        <line x1="-28" y1="-14" x2="28" y2="-14" stroke="white" stroke-width="3" stroke-linecap="round" />
+        <circle cx="0" cy="-14" r="3.5" fill="white" />
+        <circle cx="0" cy="-26" r="3" fill="white" />
+        <!-- Left Pan Strings & Pan -->
+        <line x1="-24" y1="-14" x2="-34" y2="4" stroke="white" stroke-width="1.8" stroke-linecap="round" />
+        <line x1="-24" y1="-14" x2="-14" y2="4" stroke="white" stroke-width="1.8" stroke-linecap="round" />
+        <path d="M -36 5 C -36 12, -12 12, -12 5 Z" fill="white" />
+        <!-- Right Pan Strings & Pan -->
+        <line x1="24" y1="-14" x2="14" y2="4" stroke="white" stroke-width="1.8" stroke-linecap="round" />
+        <line x1="24" y1="-14" x2="34" y2="4" stroke="white" stroke-width="1.8" stroke-linecap="round" />
+        <path d="M 12 5 C 12 12, 36 12, 36 5 Z" fill="white" />
+        <!-- Base Stand -->
+        <line x1="-16" y1="24" x2="16" y2="24" stroke="white" stroke-width="3.5" stroke-linecap="round" />
+    </g>
+
+    <!-- Top-Left Branding Header -->
+    <!-- Obelaw Logo Circle -->
+    <circle cx="75.5" cy="74.5" r="56.5" fill="#FC4706" />
+    <path d="M55.6409 56.5405C51.9589 53.2081 46.1497 53.4628 43.8319 57.8547C41.9401 61.4394 40.6577 65.3374 40.0596 69.3898C39.0208 76.4273 40.0923 83.6147 43.1384 90.0432C46.1845 96.4717 51.0685 101.853 57.1727 105.505C63.2769 109.158 70.3273 110.919 77.4321 110.565C84.537 110.21 91.3773 107.757 97.088 103.516C102.799 99.274 107.123 93.4341 109.515 86.7345C111.907 80.035 112.258 72.7766 110.525 65.8774C109.527 61.9045 107.863 58.1534 105.624 54.7746C102.881 50.6349 97.0752 50.9592 93.7428 54.6412V54.6412C90.4105 58.3232 90.9907 64.0363 92.6243 68.7259C92.7995 69.2287 92.9527 69.7403 93.0831 70.2596C93.9498 73.7092 93.7742 77.3384 92.5783 80.6882C91.3824 84.038 89.2201 86.9579 86.3647 89.0788C83.5094 91.1996 80.0892 92.4261 76.5368 92.6032C72.9844 92.7803 69.4592 91.9 66.4071 90.0736C63.355 88.2472 60.913 85.5568 59.3899 82.3425C57.8669 79.1282 57.3312 75.5345 57.8505 72.0158C57.9287 71.4862 58.0303 70.9618 58.1545 70.4441C59.3137 65.6152 59.3229 59.8728 55.6409 56.5405V56.5405Z" fill="white" />
+    <path d="M57.5893 54.5969C54.266 50.9067 54.5349 45.098 58.9326 42.7911C63.5224 40.3833 68.6108 38.9791 73.8581 38.7186C79.1054 38.4581 84.3079 39.3514 89.1136 41.2928C93.7182 43.1528 94.5611 48.9063 91.6196 52.9075V52.9075C88.6781 56.9086 82.9644 57.4822 78.0428 56.8191C76.9579 56.6729 75.8558 56.6253 74.7498 56.6802C73.6438 56.7351 72.5518 56.8917 71.4868 57.1446C66.6551 58.2919 60.9126 58.287 57.5893 54.5969V54.5969Z" fill="#893405" />
+
+    <!-- Laravel Logo Icon -->
+    <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M257.267 46.4606C257.303 46.593 257.321 46.7294 257.322 46.8665V68.1775C257.322 68.4511 257.249 68.7197 257.111 68.9564C256.972 69.1931 256.773 69.3894 256.534 69.5255L238.484 79.8236V100.235C238.484 100.791 238.186 101.304 237.7 101.583L200.023 123.077C199.937 123.125 199.843 123.157 199.749 123.19C199.714 123.201 199.68 123.223 199.643 123.232C199.38 123.301 199.103 123.301 198.839 123.232C198.796 123.221 198.757 123.197 198.716 123.182C198.63 123.151 198.539 123.123 198.457 123.077L160.788 101.583C160.549 101.447 160.35 101.251 160.211 101.014C160.073 100.777 160 100.509 160 100.235V36.3023C160 36.1625 160.02 36.0265 160.055 35.8944C160.067 35.8498 160.094 35.809 160.11 35.7643C160.139 35.6827 160.167 35.5992 160.21 35.5235C160.239 35.473 160.282 35.4322 160.318 35.3856C160.363 35.3234 160.404 35.2593 160.457 35.2049C160.502 35.1603 160.561 35.1272 160.612 35.0884C160.668 35.0418 160.719 34.9913 160.784 34.9544H160.786L179.622 24.2076C179.86 24.0716 180.13 24 180.406 24C180.681 24 180.951 24.0716 181.19 24.2076L200.025 34.9544H200.029C200.092 34.9932 200.145 35.0418 200.202 35.0864C200.253 35.1253 200.309 35.1603 200.354 35.203C200.409 35.2593 200.449 35.3234 200.496 35.3856C200.529 35.4322 200.574 35.473 200.601 35.5235C200.646 35.6012 200.672 35.6827 200.703 35.7643C200.719 35.809 200.746 35.8498 200.758 35.8964C200.794 36.0287 200.813 36.1652 200.813 36.3023V76.2342L216.509 67.2782V46.8646C216.509 46.7286 216.528 46.5907 216.564 46.4606C216.577 46.414 216.603 46.3732 216.619 46.3285C216.65 46.2469 216.677 46.1634 216.72 46.0877C216.75 46.0372 216.793 45.9964 216.826 45.9498C216.873 45.8876 216.913 45.8235 216.967 45.7691C217.012 45.7245 217.069 45.6914 217.12 45.6526C217.179 45.606 217.23 45.5555 217.293 45.5186H217.295L236.132 34.7718C236.371 34.6356 236.641 34.5639 236.916 34.5639C237.191 34.5639 237.462 34.6356 237.7 34.7718L256.536 45.5186C256.603 45.5574 256.653 45.606 256.712 45.6507C256.761 45.6895 256.818 45.7245 256.863 45.7672C256.918 45.8235 256.957 45.8876 257.004 45.9498C257.04 45.9964 257.083 46.0372 257.11 46.0877C257.155 46.1634 257.181 46.2469 257.212 46.3285C257.23 46.3732 257.255 46.414 257.267 46.4606V46.4606ZM254.182 67.2782V49.5566L247.59 53.3169L238.484 58.5126V76.2342L254.184 67.2782H254.182ZM235.346 99.336V81.6028L226.389 86.6722L200.811 101.138V119.039L235.346 99.336ZM163.14 38.9924V99.336L197.671 119.037V101.14L179.631 91.023L179.625 91.0191L179.618 91.0152C179.557 90.9802 179.506 90.9297 179.449 90.887C179.4 90.8482 179.343 90.8171 179.3 90.7743L179.296 90.7685C179.245 90.72 179.21 90.6597 179.167 90.6054C179.128 90.5529 179.081 90.5083 179.049 90.4539L179.047 90.448C179.012 90.3898 178.99 90.3198 178.965 90.2538C178.939 90.1955 178.906 90.1412 178.89 90.079V90.0771C178.871 90.0032 178.867 89.9256 178.859 89.8498C178.851 89.7915 178.836 89.7333 178.836 89.675V89.6711V47.9484L169.731 42.7508L163.14 38.9944V38.9924ZM180.408 27.3502L164.714 36.3023L180.404 45.2544L196.095 36.3004L180.404 27.3502H180.408ZM188.569 83.2188L197.673 78.025V38.9924L191.082 42.7527L181.976 47.9484V86.981L188.569 83.2188ZM236.916 37.9144L221.225 46.8665L236.916 55.8186L252.606 46.8646L236.916 37.9144V37.9144ZM235.346 58.5126L226.24 53.3169L219.649 49.5566V67.2782L228.753 72.472L235.346 76.2342V58.5126ZM199.239 98.4484L222.255 85.4272L233.761 78.9204L218.081 69.9742L200.027 80.2742L183.573 89.6614L199.239 98.4484V98.4484Z"
+        fill="#FC4706" />
+
+    <!-- Bottom Typography: IUM ACCOUNTING -->
+    <g transform="translate(540, 564)">
+        <text text-anchor="middle" font-family="'Inter', 'Montserrat', 'Segoe UI', -apple-system, sans-serif" font-size="52" font-weight="900" letter-spacing="14" fill="#0F172A">IUM ACCOUNTING</text>
+        <text y="32" text-anchor="middle" font-family="'Inter', 'Segoe UI', sans-serif" font-size="12" font-weight="800" letter-spacing="6" fill="#059669">HEADLESS GENERAL LEDGER &amp; FINANCIAL ENGINE</text>
+    </g>
+
+    <!-- Definitions -->
+    <defs>
+        <linearGradient id="paint0_linear" x1="758.124" y1="-125.348" x2="217.355" y2="833.857" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFFFFF" />
+            <stop offset="1" stop-color="#ECFDF5" />
+        </linearGradient>
+        <linearGradient id="paint1_linear" x1="615.181" y1="632.605" x2="859.283" y2="157.67" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFFFFF" />
+            <stop offset="1" stop-color="#F0FDF4" />
+        </linearGradient>
+        <linearGradient id="paint2_linear" x1="81.3163" y1="457.376" x2="817.514" y2="352.906" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFFFFF" />
+            <stop offset="1" stop-color="#F1F5F9" />
+        </linearGradient>
+        <radialGradient id="ambient_emerald" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
+            <stop offset="0%" stop-color="#10B981" stop-opacity="1" />
+            <stop offset="60%" stop-color="#059669" stop-opacity="0.4" />
+            <stop offset="100%" stop-color="#047857" stop-opacity="0" />
+        </radialGradient>
+        <linearGradient id="emerald_stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#059669" />
+            <stop offset="100%" stop-color="#10B981" />
+        </linearGradient>
+        <linearGradient id="core_emerald_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#10B981" />
+            <stop offset="100%" stop-color="#047857" />
+        </linearGradient>
+        <filter id="card_shadow" x="-10%" y="-10%" width="125%" height="125%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#059669" flood-opacity="0.08" />
+        </filter>
+        <filter id="core_shadow" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#059669" flood-opacity="0.38" />
+        </filter>
+        <clipPath id="clip0_cover">
+            <rect width="900" height="600" fill="white" transform="translate(90)" />
+        </clipPath>
+    </defs>
+</svg>
