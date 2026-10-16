@@ -6,6 +6,7 @@ use Obelaw\Ium\Accounting\Data\AclIngestEventDto;
 use Obelaw\Ium\Accounting\Data\CreateAccountDto;
 use Obelaw\Ium\Accounting\Enums\AccountClassification;
 use Obelaw\Ium\Accounting\Enums\AccountType;
+use Obelaw\Ium\Accounting\Exceptions\AccountNotFoundException;
 use Obelaw\Ium\Accounting\Services\AccountService;
 use Obelaw\Ium\Accounting\Services\AclIngestionService;
 
@@ -87,4 +88,55 @@ test('anti-corruption layer ingests PaymentReceived event and clears receivables
     expect($entry->isPosted())->toBeTrue()
         ->and($this->bank->fresh()->current_balance)->toBe(4500)
         ->and($this->ar->fresh()->current_balance)->toBe(0);
+});
+
+test('anti-corruption layer supports explicit account codes and draft mode without auto_post', function () {
+    $dto = AclIngestEventDto::fromMajor(
+        eventName: 'DirectSaleSettled',
+        documentReference: 'POS-2026-777',
+        amountMajor: 199.95,
+        transactionDate: '2026-08-20',
+        debitAccountCode: '1020',
+        creditAccountCode: '4000',
+        narration: 'POS settlement batch #777',
+        autoPost: false,
+        metadata: ['terminal' => 'POS-01']
+    );
+
+    expect($dto->amount)->toBe(19995)
+        ->and($dto->toMajor())->toBe(199.95);
+
+    $entry = $this->aclService->ingest($dto);
+
+    expect($entry->isDraft())->toBeTrue()
+        ->and($entry->isPosted())->toBeFalse()
+        ->and($entry->total_debit)->toBe(19995)
+        ->and($entry->narration)->toBe('POS settlement batch #777')
+        ->and($entry->metadata['acl_event_name'])->toBe('DirectSaleSettled')
+        ->and($entry->metadata['terminal'])->toBe('POS-01')
+        ->and($this->bank->fresh()->current_balance)->toBe(0);
+});
+
+test('anti-corruption layer rejects unmapped events and non-existent target accounts', function () {
+    expect(fn() => $this->aclService->ingest(AclIngestEventDto::from([
+        'event_name' => 'UnregisteredDomainEvent',
+        'document_reference' => 'DOC-001',
+        'amount' => 1000,
+    ])))->toThrow(InvalidArgumentException::class, 'No account mapping found for event "UnregisteredDomainEvent"');
+
+    expect(fn() => $this->aclService->ingest(AclIngestEventDto::from([
+        'event_name' => 'CustomEvent',
+        'document_reference' => 'DOC-002',
+        'amount' => 1000,
+        'debit_account_code' => '9999',
+        'credit_account_code' => '4000',
+    ])))->toThrow(AccountNotFoundException::class);
+
+    expect(fn() => $this->aclService->ingest(AclIngestEventDto::from([
+        'event_name' => 'CustomEvent',
+        'document_reference' => 'DOC-003',
+        'amount' => 1000,
+        'debit_account_code' => '1200',
+        'credit_account_code' => '8888',
+    ])))->toThrow(AccountNotFoundException::class);
 });

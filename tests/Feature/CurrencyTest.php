@@ -266,3 +266,117 @@ it('seeds standard international ISO currencies', function () {
     expect($codes)->toContain('USD', 'EUR', 'GBP', 'SAR', 'AED', 'EGP', 'JPY', 'KWD');
     expect(Currency::where('code', 'USD')->first()->isBase())->toBeTrue();
 });
+
+it('can update currency metadata and active status and filter active currencies', function () {
+    $gbp = ium()->accounting()->currencies()->create(new CreateCurrencyDto(
+        code: 'GBP',
+        name: 'British Pound',
+        symbol: '£',
+    ));
+
+    $updated = ium()->accounting()->currencies()->update('GBP', UpdateCurrencyDto::from([
+        'name' => 'Pound Sterling',
+        'is_active' => false,
+        'actor_id' => 'fx-admin',
+    ]));
+
+    expect($updated->name)->toBe('Pound Sterling')
+        ->and($updated->is_active)->toBeFalse();
+
+    expect(ium()->accounting()->currencies()->all(onlyActive: true)->pluck('code')->all())->not->toContain('GBP')
+        ->and(ium()->accounting()->currencies()->all(onlyActive: false)->pluck('code')->all())->toContain('GBP');
+
+    expect(fn () => ium()->accounting()->currencies()->findByCodeOrFail('XYZ'))
+        ->toThrow(CurrencyNotFoundException::class);
+
+    expect(fn () => ium()->accounting()->currencies()->update(999999, new UpdateCurrencyDto(name: 'Unknown')))
+        ->toThrow(CurrencyNotFoundException::class);
+});
+
+it('supports custom ExchangeRateProviderInterface fallback and rate history queries', function () {
+    ium()->accounting()->currencies()->getBaseCurrency(); // USD
+
+    $cad = ium()->accounting()->currencies()->create(new CreateCurrencyDto(
+        code: 'CAD',
+        name: 'Canadian Dollar',
+        symbol: 'CA$',
+        exchangeRate: 0.740000,
+    ));
+
+    ium()->accounting()->currencies()->setRate('CAD', 0.720000, date: '2026-01-10');
+    ium()->accounting()->currencies()->setRate('CAD', 0.750000, date: '2026-02-10');
+    ium()->accounting()->currencies()->setRate('CAD', 0.760000, date: '2026-03-10');
+
+    $history = ium()->accounting()->currencies()->getRatesHistory('CAD', '2026-01-15', '2026-02-28');
+    expect($history)->toHaveCount(1)
+        ->and($history->first()->rate)->toBe(0.75);
+
+    // Custom provider for a date prior to any recorded historical rate (2025-06-01)
+    $provider = new class implements \Obelaw\Ium\Accounting\Contracts\ExchangeRateProviderInterface {
+        public function getRate(string $currencyCode, string $baseCurrencyCode, ?string $date = null): ?float
+        {
+            return ($currencyCode === 'CAD' && $baseCurrencyCode === 'USD' && $date === '2025-06-01') ? 0.712345 : null;
+        }
+
+        public function getRates(string $baseCurrencyCode, ?string $date = null): array
+        {
+            return ['CAD' => 0.712345];
+        }
+    };
+
+    ium()->accounting()->currencies()->setRateProvider($provider);
+
+    $rateFromProvider = ium()->accounting()->currencies()->getRate('CAD', 'USD', '2025-06-01');
+    expect($rateFromProvider)->toBe(0.712345);
+});
+
+it('converts minor units across currencies with different decimal precisions and formats sub-units', function () {
+    ium()->accounting()->currencies()->getBaseCurrency(); // USD (precision 2)
+
+    $kwd = ium()->accounting()->currencies()->create(new CreateCurrencyDto(
+        code: 'KWD',
+        name: 'Kuwaiti Dinar',
+        symbol: 'KWD',
+        precision: 3,
+        symbolFirst: false,
+        exchangeRate: 3.250000, // 1 KWD = 3.25 USD
+    ));
+
+    $gbp = ium()->accounting()->currencies()->create(new CreateCurrencyDto(
+        code: 'GBP',
+        name: 'British Pound',
+        symbol: '£',
+        precision: 2,
+        exchangeRate: 1.250000,
+    ));
+
+    // 1000 Fils (1.000 KWD) -> 325 Cents (3.25 USD)
+    $usdCents = ium()->accounting()->currencies()->convertMinor(1000, 'KWD', 'USD');
+    expect($usdCents)->toBe(325);
+
+    expect($kwd->subUnitName())->toBe('Fils')
+        ->and($gbp->subUnitName())->toBe('Pence')
+        ->and($gbp->subUnitSymbol())->toBe('p')
+        ->and($gbp->formatSubUnit(75, useSymbol: true))->toBe('75 p')
+        ->and($gbp->formatSubUnit(75, useSymbol: false))->toBe('75 Pence');
+});
+
+it('validates exchange rate positivity and currency DTO constraints', function () {
+    ium()->accounting()->currencies()->create(new CreateCurrencyDto(
+        code: 'CHF',
+        name: 'Swiss Franc',
+        symbol: 'CHF',
+    ));
+
+    expect(fn () => ium()->accounting()->currencies()->setRate('CHF', 0.0))
+        ->toThrow(InvalidArgumentException::class, 'Exchange rate must be strictly positive');
+
+    expect(fn () => ium()->accounting()->currencies()->setRate('CHF', -1.5))
+        ->toThrow(InvalidArgumentException::class, 'Exchange rate must be strictly positive');
+
+    expect(fn () => new CreateCurrencyDto(code: 'US', name: 'Invalid Code', symbol: '$'))
+        ->toThrow(InvalidArgumentException::class, '3-character ISO 4217 code');
+
+    expect(fn () => new CreateCurrencyDto(code: 'USD', name: 'US Dollar', symbol: '$', precision: 8))
+        ->toThrow(InvalidArgumentException::class, 'precision must be between 0 and 6');
+});

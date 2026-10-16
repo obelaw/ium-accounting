@@ -121,3 +121,62 @@ test('fiscal year-end closing zeroes out nominal accounts and transfers net prof
     // Invariant: Net Profit (50,000 - 20,000 = 30,000) transferred to Retained Earnings
     expect($this->retained->fresh()->current_balance)->toBe(30000);
 });
+
+test('fiscal year-end closing transfers net loss by debiting retained earnings and prevents re-closing', function () {
+    \Illuminate\Support\Facades\Event::fake([\Obelaw\Ium\Accounting\Events\FiscalYearClosed::class]);
+
+    $year = $this->periodService->createYear(CreateFiscalYearDto::from([
+        'name' => 'FY 2027',
+        'start_date' => '2027-01-01',
+        'end_date' => '2027-12-31',
+    ]));
+
+    $period = $this->periodService->createPeriod(CreateFiscalPeriodDto::from([
+        'fiscal_year_id' => $year->id,
+        'period_number' => 12,
+        'name' => 'December 2027',
+        'start_date' => '2027-12-01',
+        'end_date' => '2027-12-31',
+    ]));
+
+    // Revenue: 10,000
+    $jv1 = $this->journalService->createDraft(CreateJournalEntryDto::from([
+        'entry_date' => '2027-06-01',
+        'fiscal_period_id' => $period->id,
+        'lines' => [
+            ['account_id' => $this->cash->id, 'type' => PostingSide::DEBIT, 'amount' => 10000],
+            ['account_id' => $this->revenue->id, 'type' => PostingSide::CREDIT, 'amount' => 10000],
+        ],
+    ]));
+    $this->journalService->post($jv1->id, 'sys');
+
+    // Expense: 25,000 (Net Loss = -15,000)
+    $jv2 = $this->journalService->createDraft(CreateJournalEntryDto::from([
+        'entry_date' => '2027-08-01',
+        'fiscal_period_id' => $period->id,
+        'lines' => [
+            ['account_id' => $this->cogs->id, 'type' => PostingSide::DEBIT, 'amount' => 25000],
+            ['account_id' => $this->cash->id, 'type' => PostingSide::CREDIT, 'amount' => 25000],
+        ],
+    ]));
+    $this->journalService->post($jv2->id, 'sys');
+
+    $closedYear = $this->closingService->closeFiscalYear(FiscalYearCloseDto::from([
+        'fiscal_year_id' => $year->id,
+        'actor_id' => 'controller-1',
+    ]));
+
+    expect($closedYear->isLocked())->toBeTrue()
+        ->and($period->fresh()->isLocked())->toBeTrue()
+        ->and($this->revenue->fresh()->current_balance)->toBe(0)
+        ->and($this->cogs->fresh()->current_balance)->toBe(0)
+        ->and($this->retained->fresh()->current_balance)->toBe(-15000);
+
+    \Illuminate\Support\Facades\Event::assertDispatched(\Obelaw\Ium\Accounting\Events\FiscalYearClosed::class);
+
+    // Attempting to close an already locked fiscal year throws InvalidArgumentException
+    expect(fn() => $this->closingService->closeFiscalYear(FiscalYearCloseDto::from([
+        'fiscal_year_id' => $year->id,
+        'actor_id' => 'controller-1',
+    ])))->toThrow(InvalidArgumentException::class, 'Fiscal Year "FY 2027" is already locked and closed.');
+});

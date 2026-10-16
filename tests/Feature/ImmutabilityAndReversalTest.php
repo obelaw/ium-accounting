@@ -90,3 +90,53 @@ test('reversing a posted voucher executes Storno correction and nets out balance
     expect($this->bank->fresh()->current_balance)->toBe(0)
         ->and($this->rent->fresh()->current_balance)->toBe(0);
 });
+
+test('prevents reversing unposted vouchers, double-reversing, or omitting reversal reason', function () {
+    $draft = $this->journalService->createDraft(CreateJournalEntryDto::from([
+        'entry_date' => '2026-03-05',
+        'creator_id' => 'maker-1',
+        'lines' => [
+            ['account_id' => $this->rent->id, 'type' => PostingSide::DEBIT, 'amount' => 1000],
+            ['account_id' => $this->bank->id, 'type' => PostingSide::CREDIT, 'amount' => 1000],
+        ],
+    ]));
+
+    // Empty reason rejected
+    expect(fn() => $this->journalService->reverse($draft->id, 'supervisor-1', '   '))
+        ->toThrow(InvalidArgumentException::class, 'Reversal reason is mandatory.');
+
+    // Unposted draft cannot be reversed
+    expect(fn() => $this->journalService->reverse($draft->id, 'supervisor-1', 'Cannot reverse draft'))
+        ->toThrow(ReversalNotAllowedException::class);
+
+    $posted = $this->journalService->post($draft->id, 'poster-1');
+    $reversal = $this->journalService->reverse($posted->id, 'supervisor-1', 'First valid reversal');
+
+    // Double reversal of already reversed voucher rejected
+    expect(fn() => $this->journalService->reverse($posted->id, 'supervisor-1', 'Second reversal attempt'))
+        ->toThrow(ReversalNotAllowedException::class);
+
+    // Reversed voucher also cannot be deleted
+    expect(fn() => $posted->fresh()->delete())
+        ->toThrow(ImmutableJournalEntryException::class);
+
+    // Cross-reference relationships resolve properly
+    expect($posted->fresh()->reversalEntry->id)->toBe($reversal->id)
+        ->and($reversal->reversedEntry->id)->toBe($posted->id);
+});
+
+test('allows deleting mutable draft and rejected vouchers before posting', function () {
+    $draft = $this->journalService->createDraft(CreateJournalEntryDto::from([
+        'entry_date' => '2026-03-10',
+        'creator_id' => 'maker-1',
+        'lines' => [
+            ['account_id' => $this->rent->id, 'type' => PostingSide::DEBIT, 'amount' => 500],
+            ['account_id' => $this->bank->id, 'type' => PostingSide::CREDIT, 'amount' => 500],
+        ],
+    ]));
+
+    $id = $draft->id;
+    $draft->delete();
+
+    expect(JournalEntry::find($id))->toBeNull();
+});

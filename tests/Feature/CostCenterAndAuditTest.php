@@ -103,7 +103,46 @@ test('forensic audit log preserves immutable history of accounting actions', fun
         ->and($actions)->toContain('approved')
         ->and($actions)->toContain('posted');
 
-    // Audit logs are append-only and cannot be mutated
+    // Audit logs are append-only and cannot be mutated or deleted
     $firstLog = $history->first();
+    expect(fn() => $firstLog->update(['reason' => 'Tampered']))->toThrow(\Obelaw\Ium\Accounting\Exceptions\ImmutableJournalEntryException::class);
     expect(fn() => $firstLog->delete())->toThrow(\Obelaw\Ium\Accounting\Exceptions\ImmutableJournalEntryException::class);
+});
+
+test('cost center service enforces unique codes and supports filtering by dimension type', function () {
+    $cc1 = $this->costCenterService->create(CreateCostCenterDto::from([
+        'code' => 'ENG-01',
+        'name' => 'Core Engineering',
+        'dimension_type' => DimensionType::DEPARTMENT,
+    ]));
+
+    $cc2 = $this->costCenterService->create(CreateCostCenterDto::from([
+        'code' => 'PRJ-99',
+        'name' => 'ERP Migration Project',
+        'dimension_type' => DimensionType::PROJECT,
+    ]));
+
+    expect(fn() => $this->costCenterService->create(CreateCostCenterDto::from([
+        'code' => 'ENG-01',
+        'name' => 'Duplicate Dept',
+        'dimension_type' => DimensionType::DEPARTMENT,
+    ])))->toThrow(InvalidArgumentException::class, 'Cost center code "ENG-01" already exists.');
+
+    expect($this->costCenterService->find($cc1->id)?->code)->toBe('ENG-01')
+        ->and($this->costCenterService->findByCode('PRJ-99')?->id)->toBe($cc2->id)
+        ->and($this->costCenterService->list())->toHaveCount(2)
+        ->and($this->costCenterService->list(DimensionType::PROJECT))->toHaveCount(1)
+        ->and($this->costCenterService->list(DimensionType::PROJECT)->first()->code)->toBe('PRJ-99');
+});
+
+test('audit service skips recording when audit config is disabled', function () {
+    config()->set('ium.accounting.audit.enabled', false);
+
+    $log = $this->auditService->record(
+        action: \Obelaw\Ium\Accounting\Enums\AuditAction::CREATED,
+        auditable: $this->cash,
+        actorId: 'test-actor'
+    );
+
+    expect($log)->toBeNull();
 });
