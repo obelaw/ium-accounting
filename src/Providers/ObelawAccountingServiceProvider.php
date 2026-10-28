@@ -16,6 +16,7 @@ use Obelaw\Ium\Accounting\Services\ClosingService;
 use Obelaw\Ium\Accounting\Services\CostCenterService;
 use Obelaw\Ium\Accounting\Services\CurrencyService;
 use Obelaw\Ium\Accounting\Services\FiscalPeriodService;
+use Obelaw\Ium\Accounting\Services\FixedAssetService;
 use Obelaw\Ium\Accounting\Services\JournalEntryService;
 use Obelaw\Ium\Accounting\Services\LedgerService;
 use Obelaw\Ium\Facades\Ium;
@@ -65,6 +66,7 @@ final class ObelawAccountingServiceProvider extends ServiceProvider
             AccountService::class,
             CostCenterService::class,
             FiscalPeriodService::class,
+            FixedAssetService::class,
             JournalEntryService::class,
             LedgerService::class,
             ClosingService::class,

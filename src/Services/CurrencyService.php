@@ -445,6 +445,42 @@ class CurrencyService
     /**
      * Pre-populate standard global currencies (ISO 4217).
      */
+    /**
+     * Pre-populate default ISO 4217 currencies and configure base currency from config.
+     *
+     * @return array<Currency>
+     */
+    public function seedDefaultCurrencies(?string $baseCurrency = null): array
+    {
+        $baseCode = strtoupper(trim($baseCurrency ?? (string) config('twist-accounting.currency.code', 'USD')));
+
+        $this->seedStandardCurrencies($baseCode);
+
+        // Ensure the designated base currency exists and is set as the active base
+        $currency = Currency::where('code', $baseCode)->first();
+        if ($currency) {
+            if (! $currency->is_base) {
+                $this->setBaseCurrency($baseCode, 'system-init');
+            }
+        } else {
+            $symbol = (string) config('twist-accounting.currency.symbol', '$');
+            $decimals = (int) config('twist-accounting.currency.decimals', 2);
+
+            $this->create(new CreateCurrencyDto(
+                code: $baseCode,
+                name: $baseCode . ' Currency',
+                symbol: $symbol,
+                precision: $decimals,
+                symbolFirst: true,
+                isBase: true,
+                isActive: true,
+                exchangeRate: 1.0,
+            ));
+        }
+
+        return Currency::all()->all();
+    }
+
     public function seedStandardCurrencies(string $baseCurrency = 'USD'): void
     {
         $standards = [

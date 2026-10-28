@@ -12,6 +12,7 @@ use Obelaw\Ium\Accounting\Services\ClosingService;
 use Obelaw\Ium\Accounting\Services\CostCenterService;
 use Obelaw\Ium\Accounting\Services\CurrencyService;
 use Obelaw\Ium\Accounting\Services\FiscalPeriodService;
+use Obelaw\Ium\Accounting\Services\FixedAssetService;
 use Obelaw\Ium\Accounting\Services\JournalEntryService;
 use Obelaw\Ium\Accounting\Services\LedgerService;
 use Obelaw\Ium\Engine\ObelawConfigManager;
@@ -105,5 +106,13 @@ final class AccountingDomain extends Domain
     public function currencies(): CurrencyService
     {
         return $this->getManager()->currencies();
+    }
+
+    /**
+     * Fixed Assets management, subledger valuation, and automated depreciation engine.
+     */
+    public function fixedAssets(): FixedAssetService
+    {
+        return $this->getManager()->fixedAssets();
     }
 }

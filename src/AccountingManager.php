@@ -11,6 +11,7 @@ use Obelaw\Ium\Accounting\Services\ClosingService;
 use Obelaw\Ium\Accounting\Services\CostCenterService;
 use Obelaw\Ium\Accounting\Services\CurrencyService;
 use Obelaw\Ium\Accounting\Services\FiscalPeriodService;
+use Obelaw\Ium\Accounting\Services\FixedAssetService;
 use Obelaw\Ium\Accounting\Services\JournalEntryService;
 use Obelaw\Ium\Accounting\Services\LedgerService;
 
@@ -62,5 +63,10 @@ final class AccountingManager
     public function currencies(): CurrencyService
     {
         return app(CurrencyService::class);
+    }
+
+    public function fixedAssets(): FixedAssetService
+    {
+        return app(FixedAssetService::class);
     }
 }
