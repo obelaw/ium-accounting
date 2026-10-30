@@ -35,7 +35,7 @@ beforeEach(function () {
         name: 'Accumulated Depreciation - Equipment',
         type: AccountType::ASSET,
         classification: AccountClassification::POSTING,
-        normalBalance: NormalBalance::DEBIT,
+        normalBalance: NormalBalance::CREDIT,
         isLeaf: true,
     ));
 
@@ -175,7 +175,7 @@ it('enforces fiscal period hard locks by throwing FiscalPeriodClosedException', 
     ));
 
     // Hard-lock January 2026
-    ium()->accounting()->fiscalPeriods()->lockPeriod($this->janPeriod->id, 'cfo-actor');
+    ium()->accounting()->fiscalPeriods()->lockPeriod($this->janPeriod->id, 'cfo-actor', 'Audited statutory lock');
 
     expect(fn() => ium()->accounting()->fixedAssets()->runDepreciationForPeriod(
         fiscalPeriodId: $this->janPeriod->id,
