@@ -40,11 +40,11 @@ return new class extends MigrationBase
                 ->restrictOnDelete();
 
             $table->foreignId('accumulated_depreciation_account_id')
-                ->constrained($this->prefix . 'accounts')
+                ->constrained($this->prefix . 'accounts', indexName: 'ium_acc_fa_accum_depr_fk')
                 ->restrictOnDelete();
 
             $table->foreignId('depreciation_expense_account_id')
-                ->constrained($this->prefix . 'accounts')
+                ->constrained($this->prefix . 'accounts', indexName: 'ium_acc_fa_depr_exp_fk')
                 ->restrictOnDelete();
 
             // Analytical Cost Center dimension
@@ -56,7 +56,7 @@ return new class extends MigrationBase
             // Optional Capitalization Journal Entry link
             $table->foreignId('acquisition_journal_entry_id')
                 ->nullable()
-                ->constrained($this->prefix . 'journal_entries')
+                ->constrained($this->prefix . 'journal_entries', indexName: 'ium_acc_fa_acq_je_fk')
                 ->nullOnDelete();
 
             $table->string('creator_id', 128)->nullable();
