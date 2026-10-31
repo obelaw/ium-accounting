@@ -82,10 +82,46 @@ composer require obelaw/ium-accounting
 
 ### 2. Run Migrations
 
-All accounting tables use the isolated `ium_accounting_` table prefix:
+All accounting tables use the isolated `ium_accounting_` table prefix. By default, migrations are loaded automatically:
 
 ```bash
 php artisan migrate
+```
+
+#### Custom Migration Path & Auto-Migrate Options
+
+You can control whether migrations auto-load or specify a custom path in `config/ium/accounting.php`:
+
+```php
+'migrations' => [
+    'auto_migrate' => (bool) env('IUM_ACCOUNTING_AUTO_MIGRATE', true),
+    'path' => env('IUM_ACCOUNTING_MIGRATIONS_PATH', null),
+],
+```
+
+Or execute migrations explicitly via the dedicated Artisan command with an optional custom path:
+
+```bash
+# Run accounting migrations from default package path
+php artisan ium:accounting:migrate
+
+# Run accounting migrations from a custom selected path
+php artisan ium:accounting:migrate --path=database/migrations/accounting
+```
+
+You can also configure auto-migration or execute migrations programmatically:
+
+```php
+// Disable auto-migration at runtime (e.g. in multi-tenant environments)
+ObelawAccountingServiceProvider::ignoreMigrations();
+// or
+ium()->accounting()->ignoreMigrations();
+
+// Set a custom migration directory
+ium()->accounting()->setMigrationPath('/custom/migrations/path');
+
+// Run migrations on demand
+ium()->accounting()->migrate('/custom/migrations/path');
 ```
 
 ### 3. Seed Turnkey Demo Ledger (Optional)

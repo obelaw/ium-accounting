@@ -15,6 +15,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Database Migrations
+    |--------------------------------------------------------------------------
+    |
+    | Configure whether domain migrations are automatically registered and loaded
+    | into Laravel's migrator, and optionally specify a custom migration path.
+    |
+    */
+    'migrations' => [
+        'auto_migrate' => (bool) env('IUM_ACCOUNTING_AUTO_MIGRATE', true),
+        'path' => env('IUM_ACCOUNTING_MIGRATIONS_PATH', null),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Functional Currency & Precision
     |--------------------------------------------------------------------------
     |

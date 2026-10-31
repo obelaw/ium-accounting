@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Obelaw\Ium\Accounting;
 
+use Illuminate\Support\Facades\Artisan;
 use Obelaw\Ium\Abstracts\Domain;
+use Obelaw\Ium\Accounting\Providers\ObelawAccountingServiceProvider;
 use Obelaw\Ium\Accounting\Services\AccountService;
 use Obelaw\Ium\Accounting\Services\AclIngestionService;
 use Obelaw\Ium\Accounting\Services\AuditService;
@@ -25,7 +27,7 @@ use Obelaw\Ium\Engine\ObelawConfigManager;
 final class AccountingDomain extends Domain
 {
     public function __construct(
-        ObelawConfigManager $config,
+        private readonly ObelawConfigManager $config,
         private readonly ?AccountingManager $manager = null
     ) {
         parent::__construct($config);
@@ -114,5 +116,70 @@ final class AccountingDomain extends Domain
     public function fixedAssets(): FixedAssetService
     {
         return $this->getManager()->fixedAssets();
+    }
+
+    /**
+     * Configure automatic migration registration.
+     */
+    public function autoMigrate(bool $autoMigrate = true): self
+    {
+        $this->config->set('accounting.migrations.auto_migrate', $autoMigrate);
+        ObelawAccountingServiceProvider::autoMigrate($autoMigrate);
+
+        return $this;
+    }
+
+    /**
+     * Disable automatic migration registration.
+     */
+    public function ignoreMigrations(): self
+    {
+        return $this->autoMigrate(false);
+    }
+
+    /**
+     * Set a custom migrations directory path.
+     */
+    public function setMigrationPath(?string $path): self
+    {
+        $this->config->set('accounting.migrations.path', $path);
+        ObelawAccountingServiceProvider::setMigrationPath($path);
+
+        return $this;
+    }
+
+    /**
+     * Get the active migrations directory path.
+     */
+    public function getMigrationPath(): string
+    {
+        return ObelawAccountingServiceProvider::getMigrationPath();
+    }
+
+    /**
+     * Determine whether auto-migration is enabled.
+     */
+    public function shouldAutoMigrate(): bool
+    {
+        return ObelawAccountingServiceProvider::shouldAutoMigrate();
+    }
+
+    /**
+     * Execute domain migrations directly.
+     *
+     * @param string|null $path Custom migrations path override
+     * @param array<string, mixed> $options Additional Artisan migrate options
+     */
+    public function migrate(?string $path = null, array $options = []): int
+    {
+        $migrationPath = $path ?? $this->getMigrationPath();
+        $resolvedPath = realpath($migrationPath) ?: $migrationPath;
+
+        $params = array_merge([
+            '--path' => $resolvedPath,
+            '--realpath' => true,
+        ], $options);
+
+        return Artisan::call('migrate', $params);
     }
 }
