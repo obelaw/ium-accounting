@@ -2,4 +2,6 @@
 
 declare(strict_types=1);
 
-uses(Obelaw\Ium\Accounting\Tests\TestCase::class)->in('Feature', 'Unit');
+use Obelaw\Ium\Accounting\Tests\TestCase;
+
+uses(TestCase::class)->in('Unit', 'Feature');
