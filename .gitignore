@@ -1,4 +1,6 @@
 /vendor
 /composer.lock
+/composer.local.json
+/composer.local.lock
 .phpunit.result.cache
-.phpunit.cache/
+.phpunit.cache/

@@ -1,7 +1,22 @@
 {
     "name": "obelaw/ium-accounting",
-    "description": "Financial Management & Accounting (FMS) Domain Module for Obelawium ERP",
+    "description": "Enterprise General Ledger & Financial Management (FMS) Domain Module for Obelawium ERP",
+    "type": "library",
     "license": "MIT",
+    "keywords": [
+        "obelaw",
+        "obelawium",
+        "ium",
+        "accounting",
+        "general-ledger",
+        "double-entry",
+        "fms",
+        "erp",
+        "vat",
+        "reconciliation",
+        "fixed-assets",
+        "laravel"
+    ],
     "authors": [
         {
             "name": "Obelaw Team",
@@ -10,7 +25,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "obelaw/ium": "*",
+        "obelaw/ium": "^1.0",
         "illuminate/database": "^11.0|^12.0|^13.0",
         "illuminate/support": "^11.0|^12.0|^13.0",
         "illuminate/validation": "^11.0|^12.0|^13.0",
@@ -19,7 +34,7 @@
     "require-dev": {
         "pestphp/pest": "^3.0|^4.0",
         "pestphp/pest-plugin-laravel": "^3.0|^4.0",
-        "orchestra/testbench": "^9.0|^10.0"
+        "orchestra/testbench": "^9.0|^10.0|^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -42,10 +57,11 @@
         "test": "vendor/bin/pest"
     },
     "config": {
+        "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }
