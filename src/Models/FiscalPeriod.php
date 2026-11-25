@@ -4,17 +4,11 @@ declare(strict_types=1);
 
 namespace Obelaw\Ium\Accounting\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Obelaw\Ium\Accounting\Base\ModelBase;
 use Obelaw\Ium\Accounting\Enums\FiscalPeriodStatus;
 
-/**
- * Monthly or Quarterly Fiscal Accounting Period.
- *
- * Automatically maps to table `ium_accounting_fiscal_periods`.
- */
 class FiscalPeriod extends ModelBase
 {
     protected $table = 'fiscal_periods';
@@ -29,15 +23,17 @@ class FiscalPeriod extends ModelBase
         'locked_at',
         'locked_by',
         'lock_reason',
+        'metadata',
     ];
 
     protected $casts = [
         'fiscal_year_id' => 'integer',
         'period_number' => 'integer',
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'start_date' => 'date:Y-m-d',
+        'end_date' => 'date:Y-m-d',
         'status' => FiscalPeriodStatus::class,
         'locked_at' => 'datetime',
+        'metadata' => 'array',
     ];
 
     public function fiscalYear(): BelongsTo
@@ -48,16 +44,6 @@ class FiscalPeriod extends ModelBase
     public function journalEntries(): HasMany
     {
         return $this->hasMany(JournalEntry::class, 'fiscal_period_id');
-    }
-
-    public function ledgerPostings(): HasMany
-    {
-        return $this->hasMany(GeneralLedgerPosting::class, 'fiscal_period_id');
-    }
-
-    public function scopeOpen(Builder $query): Builder
-    {
-        return $query->where('status', FiscalPeriodStatus::OPEN->value);
     }
 
     public function isOpen(): bool

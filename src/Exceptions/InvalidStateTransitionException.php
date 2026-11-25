@@ -4,22 +4,15 @@ declare(strict_types=1);
 
 namespace Obelaw\Ium\Accounting\Exceptions;
 
-use DomainException;
-
-/**
- * Thrown when an illegal journal voucher state transition is attempted.
- */
-class InvalidStateTransitionException extends DomainException
+final class InvalidStateTransitionException extends AccountingException
 {
-    public static function transition(string $entryNumber, string $from, string $to): self
+    public static function transition(string $identifier, string $from, string $to): self
     {
-        return new self(
-            sprintf(
-                'Invalid state transition for voucher "%s": Cannot transition from "%s" to "%s".',
-                $entryNumber,
-                $from,
-                $to
-            )
-        );
+        return new self(sprintf(
+            'Invalid state transition for "%s": cannot transition from "%s" to "%s".',
+            $identifier,
+            $from,
+            $to
+        ));
     }
 }

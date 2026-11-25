@@ -12,11 +12,6 @@ use Obelaw\Ium\Accounting\Enums\AccountClassification;
 use Obelaw\Ium\Accounting\Enums\AccountType;
 use Obelaw\Ium\Accounting\Enums\NormalBalance;
 
-/**
- * Chart of Accounts (COA) Account Entity.
- *
- * Automatically maps to table `ium_accounting_accounts`.
- */
 class Account extends ModelBase
 {
     protected $table = 'accounts';
@@ -30,7 +25,7 @@ class Account extends ModelBase
         'parent_id',
         'currency',
         'is_leaf',
-        'is_reconciliation',
+        'is_reconcilable',
         'is_active',
         'current_balance',
         'metadata',
@@ -42,27 +37,11 @@ class Account extends ModelBase
         'normal_balance' => NormalBalance::class,
         'parent_id' => 'integer',
         'is_leaf' => 'boolean',
-        'is_reconciliation' => 'boolean',
+        'is_reconcilable' => 'boolean',
         'is_active' => 'boolean',
         'current_balance' => 'integer',
         'metadata' => 'array',
     ];
-
-    public function currentBalanceMajor(?int $precision = null): float
-    {
-        $prec = $precision ?? 2;
-
-        return round($this->current_balance / (10 ** $prec), $prec);
-    }
-
-    public function formatCurrentBalance(?Currency $currency = null): string
-    {
-        if ($currency !== null) {
-            return $currency->formatMinor($this->current_balance);
-        }
-
-        return number_format($this->currentBalanceMajor(), 2);
-    }
 
     public function parent(): BelongsTo
     {
@@ -71,12 +50,7 @@ class Account extends ModelBase
 
     public function children(): HasMany
     {
-        return $this->hasMany(self::class, 'parent_id');
-    }
-
-    public function journalLines(): HasMany
-    {
-        return $this->hasMany(JournalEntryLine::class, 'account_id');
+        return $this->hasMany(self::class, 'parent_id')->orderBy('code');
     }
 
     public function ledgerPostings(): HasMany
@@ -84,36 +58,49 @@ class Account extends ModelBase
         return $this->hasMany(GeneralLedgerPosting::class, 'account_id');
     }
 
-    /**
-     * Scope: Only active accounts.
-     */
+    public function journalEntryLines(): HasMany
+    {
+        return $this->hasMany(JournalEntryLine::class, 'account_id');
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Scope: Only leaf-level posting accounts.
-     */
     public function scopePostingAccounts(Builder $query): Builder
     {
         return $query->where('is_leaf', true)
             ->where('classification', AccountClassification::POSTING->value);
     }
 
-    /**
-     * Scope: Filter by AccountType.
-     */
+    public function scopeReconcilable(Builder $query): Builder
+    {
+        return $query->where('is_reconcilable', true);
+    }
+
     public function scopeOfType(Builder $query, AccountType $type): Builder
     {
         return $query->where('type', $type->value);
     }
 
-    /**
-     * Check if this account accepts line item postings.
-     */
     public function allowsPostings(): bool
     {
-        return $this->is_leaf && $this->classification === AccountClassification::POSTING;
+        return (bool) $this->is_leaf
+            && (bool) $this->is_active
+            && $this->classification === AccountClassification::POSTING;
+    }
+
+    public function isContra(): bool
+    {
+        return $this->normal_balance !== $this->type->naturalNormalBalance();
+    }
+
+    /**
+     * Signed balance contribution to its AccountType section (flips sign for contra accounts).
+     */
+    public function signedSectionAmount(int $normalBalanceAmount): int
+    {
+        return $this->isContra() ? -$normalBalanceAmount : $normalBalanceAmount;
     }
 }

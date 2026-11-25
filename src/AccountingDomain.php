@@ -4,182 +4,96 @@ declare(strict_types=1);
 
 namespace Obelaw\Ium\Accounting;
 
-use Illuminate\Support\Facades\Artisan;
 use Obelaw\Ium\Abstracts\Domain;
-use Obelaw\Ium\Accounting\Providers\ObelawAccountingServiceProvider;
-use Obelaw\Ium\Accounting\Services\AccountService;
-use Obelaw\Ium\Accounting\Services\AclIngestionService;
-use Obelaw\Ium\Accounting\Services\AuditService;
-use Obelaw\Ium\Accounting\Services\ClosingService;
-use Obelaw\Ium\Accounting\Services\CostCenterService;
-use Obelaw\Ium\Accounting\Services\CurrencyService;
-use Obelaw\Ium\Accounting\Services\FiscalPeriodService;
-use Obelaw\Ium\Accounting\Services\FixedAssetService;
-use Obelaw\Ium\Accounting\Services\JournalEntryService;
-use Obelaw\Ium\Accounting\Services\LedgerService;
-use Obelaw\Ium\Engine\ObelawConfigManager;
+use Obelaw\Ium\Accounting\Gateways\AccountGateway;
+use Obelaw\Ium\Accounting\Gateways\AclGateway;
+use Obelaw\Ium\Accounting\Gateways\AuditGateway;
+use Obelaw\Ium\Accounting\Gateways\ClosingGateway;
+use Obelaw\Ium\Accounting\Gateways\CostCenterGateway;
+use Obelaw\Ium\Accounting\Gateways\CurrencyGateway;
+use Obelaw\Ium\Accounting\Gateways\FiscalPeriodGateway;
+use Obelaw\Ium\Accounting\Gateways\FixedAssetGateway;
+use Obelaw\Ium\Accounting\Gateways\FxGateway;
+use Obelaw\Ium\Accounting\Gateways\JournalEntryGateway;
+use Obelaw\Ium\Accounting\Gateways\JournalGateway;
+use Obelaw\Ium\Accounting\Gateways\ReconciliationGateway;
+use Obelaw\Ium\Accounting\Gateways\ReportingGateway;
+use Obelaw\Ium\Accounting\Gateways\TaxGateway;
 
 /**
- * Accounting Domain Gateway for Obelawium.
+ * Enterprise Accounting Domain Gateway for Obelawium.
  *
- * Implements the fluent chain: ium()->accounting()->{service}()->method()
+ * Fluent DSL: `ium()->accounting()->{gateway}()->{operation}()`
  */
 final class AccountingDomain extends Domain
 {
-    public function __construct(
-        private readonly ObelawConfigManager $config,
-        private readonly ?AccountingManager $manager = null
-    ) {
-        parent::__construct($config);
+    public function currencies(): CurrencyGateway
+    {
+        return app(CurrencyGateway::class);
     }
 
-    private function getManager(): AccountingManager
+    public function accounts(): AccountGateway
     {
-        return $this->manager ?? app(AccountingManager::class);
+        return app(AccountGateway::class);
     }
 
-    /**
-     * Chart of Accounts (COA) management service.
-     */
-    public function accounts(): AccountService
+    public function journals(): JournalGateway
     {
-        return $this->getManager()->accounts();
+        return app(JournalGateway::class);
     }
 
-    /**
-     * Journal voucher drafting, validation, posting, and reversal service.
-     */
-    public function journalEntries(): JournalEntryService
+    public function costCenters(): CostCenterGateway
     {
-        return $this->getManager()->journalEntries();
+        return app(CostCenterGateway::class);
     }
 
-    /**
-     * General Ledger reporting (Trial Balance, Balance Sheet, Income Statement).
-     */
-    public function ledger(): LedgerService
+    public function fiscalPeriods(): FiscalPeriodGateway
     {
-        return $this->getManager()->ledger();
+        return app(FiscalPeriodGateway::class);
     }
 
-    /**
-     * Fiscal years and monthly/quarterly period governance service.
-     */
-    public function fiscalPeriods(): FiscalPeriodService
+    public function taxes(): TaxGateway
     {
-        return $this->getManager()->fiscalPeriods();
+        return app(TaxGateway::class);
     }
 
-    /**
-     * Analytical accounting dimensions and cost centers service.
-     */
-    public function costCenters(): CostCenterService
+    public function journalEntries(): JournalEntryGateway
     {
-        return $this->getManager()->costCenters();
+        return app(JournalEntryGateway::class);
     }
 
-    /**
-     * Fiscal year-end nominal closing and retained earnings rollover service.
-     */
-    public function closing(): ClosingService
+    public function reconciliations(): ReconciliationGateway
     {
-        return $this->getManager()->closing();
+        return app(ReconciliationGateway::class);
     }
 
-    /**
-     * Immutable forensic accounting audit trail service.
-     */
-    public function audit(): AuditService
+    public function fx(): FxGateway
     {
-        return $this->getManager()->audit();
+        return app(FxGateway::class);
     }
 
-    /**
-     * Anti-Corruption Layer (ACL) for operational domain event ingestion.
-     */
-    public function acl(): AclIngestionService
+    public function fixedAssets(): FixedAssetGateway
     {
-        return $this->getManager()->acl();
+        return app(FixedAssetGateway::class);
     }
 
-    /**
-     * Multi-Currency and foreign exchange conversion engine service.
-     */
-    public function currencies(): CurrencyService
+    public function closing(): ClosingGateway
     {
-        return $this->getManager()->currencies();
+        return app(ClosingGateway::class);
     }
 
-    /**
-     * Fixed Assets management, subledger valuation, and automated depreciation engine.
-     */
-    public function fixedAssets(): FixedAssetService
+    public function reports(): ReportingGateway
     {
-        return $this->getManager()->fixedAssets();
+        return app(ReportingGateway::class);
     }
 
-    /**
-     * Configure automatic migration registration.
-     */
-    public function autoMigrate(bool $autoMigrate = true): self
+    public function acl(): AclGateway
     {
-        $this->config->set('accounting.migrations.auto_migrate', $autoMigrate);
-        ObelawAccountingServiceProvider::autoMigrate($autoMigrate);
-
-        return $this;
+        return app(AclGateway::class);
     }
 
-    /**
-     * Disable automatic migration registration.
-     */
-    public function ignoreMigrations(): self
+    public function audit(): AuditGateway
     {
-        return $this->autoMigrate(false);
-    }
-
-    /**
-     * Set a custom migrations directory path.
-     */
-    public function setMigrationPath(?string $path): self
-    {
-        $this->config->set('accounting.migrations.path', $path);
-        ObelawAccountingServiceProvider::setMigrationPath($path);
-
-        return $this;
-    }
-
-    /**
-     * Get the active migrations directory path.
-     */
-    public function getMigrationPath(): string
-    {
-        return ObelawAccountingServiceProvider::getMigrationPath();
-    }
-
-    /**
-     * Determine whether auto-migration is enabled.
-     */
-    public function shouldAutoMigrate(): bool
-    {
-        return ObelawAccountingServiceProvider::shouldAutoMigrate();
-    }
-
-    /**
-     * Execute domain migrations directly.
-     *
-     * @param string|null $path Custom migrations path override
-     * @param array<string, mixed> $options Additional Artisan migrate options
-     */
-    public function migrate(?string $path = null, array $options = []): int
-    {
-        $migrationPath = $path ?? $this->getMigrationPath();
-        $resolvedPath = realpath($migrationPath) ?: $migrationPath;
-
-        $params = array_merge([
-            '--path' => $resolvedPath,
-            '--realpath' => true,
-        ], $options);
-
-        return Artisan::call('migrate', $params);
+        return app(AuditGateway::class);
     }
 }

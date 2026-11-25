@@ -8,11 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Obelaw\Ium\Accounting\Base\ModelBase;
 use Obelaw\Ium\Accounting\Enums\DepreciationScheduleStatus;
 
-/**
- * Fixed Asset Depreciation Schedule Line Item.
- *
- * Automatically maps to table `ium_accounting_depreciation_schedules`.
- */
 class DepreciationSchedule extends ModelBase
 {
     protected $table = 'depreciation_schedules';
@@ -45,11 +40,6 @@ class DepreciationSchedule extends ModelBase
         'posted_at' => 'datetime',
         'metadata' => 'array',
     ];
-
-    public function depreciationAmountMajor(int $precision = 2): float
-    {
-        return round($this->depreciation_amount / (10 ** $precision), $precision);
-    }
 
     public function fixedAsset(): BelongsTo
     {

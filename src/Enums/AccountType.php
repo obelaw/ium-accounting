@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Obelaw\Ium\Accounting\Enums;
 
-/**
- * Fundamental Account Types in the Five-Category Accounting Taxonomy.
- */
 enum AccountType: string
 {
     case ASSET = 'asset';
@@ -15,10 +12,7 @@ enum AccountType: string
     case REVENUE = 'revenue';
     case EXPENSE = 'expense';
 
-    /**
-     * Determine the normal balance side (Debit or Credit) for this account type.
-     */
-    public function normalBalance(): NormalBalance
+    public function naturalNormalBalance(): NormalBalance
     {
         return match ($this) {
             self::ASSET, self::EXPENSE => NormalBalance::DEBIT,
@@ -26,22 +20,13 @@ enum AccountType: string
         };
     }
 
-    /**
-     * Check if this is a temporary / nominal account (closed at year-end).
-     */
-    public function isNominal(): bool
+    public function isBalanceSheet(): bool
     {
-        return match ($this) {
-            self::REVENUE, self::EXPENSE => true,
-            self::ASSET, self::LIABILITY, self::EQUITY => false,
-        };
+        return in_array($this, [self::ASSET, self::LIABILITY, self::EQUITY], true);
     }
 
-    /**
-     * Check if this is a permanent / real account (carried forward as opening balance).
-     */
-    public function isReal(): bool
+    public function isNominal(): bool
     {
-        return !$this->isNominal();
+        return in_array($this, [self::REVENUE, self::EXPENSE], true);
     }
 }

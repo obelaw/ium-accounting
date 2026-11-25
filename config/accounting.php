@@ -15,68 +15,52 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Database Migrations
+    | Functional Currency Defaults
     |--------------------------------------------------------------------------
     |
-    | Configure whether domain migrations are automatically registered and loaded
-    | into Laravel's migrator, and optionally specify a custom migration path.
-    |
-    */
-    'migrations' => [
-        'auto_migrate' => (bool) env('IUM_ACCOUNTING_AUTO_MIGRATE', true),
-        'path' => env('IUM_ACCOUNTING_MIGRATIONS_PATH', null),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Functional Currency & Precision
-    |--------------------------------------------------------------------------
-    |
-    | The base reporting currency and decimal precision used for intermediate
-    | allocations and financial statement rounding.
+    | Default functional reporting currency. May be overridden per-tenant via
+    | Ium::settings() using key 'ium.accounting.currency.functional'.
     |
     */
     'currency' => [
         'functional' => env('IUM_ACCOUNTING_FUNCTIONAL_CURRENCY', 'USD'),
-        'precision' => (int) env('IUM_ACCOUNTING_DECIMAL_PRECISION', 4),
-        'rounding_mode' => env('IUM_ACCOUNTING_ROUNDING_MODE', 'half_up'),
+        'symbol' => env('IUM_ACCOUNTING_CURRENCY_SYMBOL', '$'),
+        'decimals' => (int) env('IUM_ACCOUNTING_CURRENCY_DECIMALS', 2),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Maker-Checker Governance
+    | Governance & Maker-Checker Segregation of Duties
     |--------------------------------------------------------------------------
-    |
-    | When strict mode is enabled, the approver of a journal voucher must be
-    | a different actor from the voucher's creator.
-    |
     */
-    'maker_checker' => [
-        'strict' => (bool) env('IUM_ACCOUNTING_MAKER_CHECKER_STRICT', true),
+    'governance' => [
+        'require_approval' => (bool) env('IUM_ACCOUNTING_REQUIRE_APPROVAL', true),
+        'strict_maker_checker' => (bool) env('IUM_ACCOUNTING_MAKER_CHECKER_STRICT', true),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Fiscal Year-End Closing Accounts
+    | Default System Account Codes
     |--------------------------------------------------------------------------
     |
-    | Default nominal clearing accounts for year-end income statement zeroing
-    | and balance sheet retained earnings transfer.
+    | Default account codes resolved during automated workflows (year-end close,
+    | realized/unrealized FX differences, fixed asset disposal).
     |
     */
-    'closing' => [
-        'retained_earnings_account_code' => env('IUM_ACCOUNTING_RETAINED_EARNINGS_CODE', '3100'),
-        'income_summary_account_code' => env('IUM_ACCOUNTING_INCOME_SUMMARY_CODE', '3900'),
+    'accounts' => [
+        'retained_earnings' => env('IUM_ACCOUNTING_RETAINED_EARNINGS_CODE', '3100'),
+        'fx_realized_gain' => env('IUM_ACCOUNTING_FX_REALIZED_GAIN_CODE', '4910'),
+        'fx_realized_loss' => env('IUM_ACCOUNTING_FX_REALIZED_LOSS_CODE', '5910'),
+        'fx_unrealized_gain' => env('IUM_ACCOUNTING_FX_UNREALIZED_GAIN_CODE', '4920'),
+        'fx_unrealized_loss' => env('IUM_ACCOUNTING_FX_UNREALIZED_LOSS_CODE', '5920'),
+        'asset_disposal_gain' => env('IUM_ACCOUNTING_ASSET_DISPOSAL_GAIN_CODE', '4930'),
+        'asset_disposal_loss' => env('IUM_ACCOUNTING_ASSET_DISPOSAL_LOSS_CODE', '5930'),
     ],
 
     /*
     |--------------------------------------------------------------------------
     | Audit Trail
     |--------------------------------------------------------------------------
-    |
-    | Append-only logging of all state transitions, approvals, reversals, and
-    | period locks for statutory compliance and forensic accounting.
-    |
     */
     'audit' => [
         'enabled' => (bool) env('IUM_ACCOUNTING_AUDIT_ENABLED', true),

@@ -13,21 +13,18 @@ use Obelaw\Ium\Accounting\Enums\JournalEntryStatus;
 use Obelaw\Ium\Accounting\Enums\JournalEntryType;
 use Obelaw\Ium\Accounting\Exceptions\ImmutableJournalEntryException;
 
-/**
- * Journal Entry (Voucher) Aggregate Root.
- *
- * Automatically maps to table `ium_accounting_journal_entries`.
- */
 class JournalEntry extends ModelBase
 {
     protected $table = 'journal_entries';
 
     protected $fillable = [
         'entry_number',
+        'journal_id',
         'entry_date',
         'fiscal_period_id',
         'status',
         'entry_type',
+        'reference',
         'narration',
         'currency',
         'exchange_rate',
@@ -40,13 +37,15 @@ class JournalEntry extends ModelBase
         'reversed_entry_id',
         'reversal_entry_id',
         'rejection_reason',
+        'idempotency_key',
         'source_type',
         'source_id',
         'metadata',
     ];
 
     protected $casts = [
-        'entry_date' => 'date',
+        'journal_id' => 'integer',
+        'entry_date' => 'date:Y-m-d',
         'fiscal_period_id' => 'integer',
         'status' => JournalEntryStatus::class,
         'entry_type' => JournalEntryType::class,
@@ -60,37 +59,61 @@ class JournalEntry extends ModelBase
         'metadata' => 'array',
     ];
 
-    /**
-     * Enforce strict ledger immutability invariant:
-     * Once a journal entry is posted, it can NEVER be modified or deleted in-place.
-     */
     protected static function booted(): void
     {
         parent::booted();
 
         static::updating(function (self $entry): void {
             $originalStatus = $entry->getOriginal('status');
-            $originalStatusValue = $originalStatus instanceof JournalEntryStatus
+            $originalValue = $originalStatus instanceof JournalEntryStatus
                 ? $originalStatus->value
                 : (string) $originalStatus;
 
-            // Allow setting reversal_entry_id / status change to REVERSED when linking a reversal
-            if ($originalStatusValue === JournalEntryStatus::POSTED->value) {
-                $dirtyKeys = array_keys($entry->getDirty());
-                $allowedReversalKeys = ['status', 'reversal_entry_id', 'reversed_entry_id', 'updated_at'];
-                $diff = array_diff($dirtyKeys, $allowedReversalKeys);
+            if ($originalValue === JournalEntryStatus::REVERSED->value) {
+                throw ImmutableJournalEntryException::cannotMutate($entry->entry_number, 'update');
+            }
 
-                if (!empty($diff)) {
+            if ($originalValue === JournalEntryStatus::POSTED->value) {
+                $dirtyKeys = array_keys($entry->getDirty());
+                $allowed = ['status', 'reversal_entry_id', 'reversed_entry_id', 'updated_at'];
+
+                if (array_diff($dirtyKeys, $allowed) !== []) {
                     throw ImmutableJournalEntryException::cannotMutate($entry->entry_number, 'update');
+                }
+
+                if ($entry->isDirty('status')) {
+                    $newStatus = $entry->status instanceof JournalEntryStatus
+                        ? $entry->status->value
+                        : (string) $entry->status;
+
+                    if ($newStatus !== JournalEntryStatus::REVERSED->value) {
+                        throw ImmutableJournalEntryException::cannotMutate($entry->entry_number, 'update');
+                    }
                 }
             }
         });
 
         static::deleting(function (self $entry): void {
-            if ($entry->status === JournalEntryStatus::POSTED || $entry->status === JournalEntryStatus::REVERSED) {
+            $originalStatus = $entry->getOriginal('status');
+            $originalValue = $originalStatus instanceof JournalEntryStatus
+                ? $originalStatus->value
+                : (string) $originalStatus;
+
+            $currentFinalized = $entry->status instanceof JournalEntryStatus && $entry->status->isFinalized();
+            $originalFinalized = in_array($originalValue, [
+                JournalEntryStatus::POSTED->value,
+                JournalEntryStatus::REVERSED->value,
+            ], true);
+
+            if ($currentFinalized || $originalFinalized) {
                 throw ImmutableJournalEntryException::cannotMutate($entry->entry_number, 'delete');
             }
         });
+    }
+
+    public function journal(): BelongsTo
+    {
+        return $this->belongsTo(Journal::class, 'journal_id');
     }
 
     public function lines(): HasMany
@@ -146,37 +169,5 @@ class JournalEntry extends ModelBase
     public function isApproved(): bool
     {
         return $this->status === JournalEntryStatus::APPROVED;
-    }
-
-    public function totalDebitMajor(?int $precision = null): float
-    {
-        $prec = $precision ?? 2;
-
-        return round($this->total_debit / (10 ** $prec), $prec);
-    }
-
-    public function totalCreditMajor(?int $precision = null): float
-    {
-        $prec = $precision ?? 2;
-
-        return round($this->total_credit / (10 ** $prec), $prec);
-    }
-
-    public function formatTotalDebit(?Currency $currency = null): string
-    {
-        if ($currency !== null) {
-            return $currency->formatMinor($this->total_debit);
-        }
-
-        return number_format($this->totalDebitMajor(), 2);
-    }
-
-    public function formatTotalCredit(?Currency $currency = null): string
-    {
-        if ($currency !== null) {
-            return $currency->formatMinor($this->total_credit);
-        }
-
-        return number_format($this->totalCreditMajor(), 2);
     }
 }

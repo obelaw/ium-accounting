@@ -6,14 +6,9 @@ namespace Obelaw\Ium\Accounting\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Obelaw\Ium\Accounting\Base\ModelBase;
+use Obelaw\Ium\Support\Money;
 
-/**
- * Currency aggregate model.
- *
- * Automatically maps to table `ium_accounting_currencies`.
- */
 class Currency extends ModelBase
 {
     protected $table = 'currencies';
@@ -46,20 +41,9 @@ class Currency extends ModelBase
         return $this->hasMany(ExchangeRate::class, 'currency_id');
     }
 
-    public function latestExchangeRate(): HasOne
-    {
-        return $this->hasOne(ExchangeRate::class, 'currency_id')
-            ->latestOfMany('effective_date');
-    }
-
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
-    }
-
-    public function scopeBase(Builder $query): Builder
-    {
-        return $query->where('is_base', true);
     }
 
     public function isBase(): bool
@@ -67,101 +51,28 @@ class Currency extends ModelBase
         return (bool) $this->is_base;
     }
 
-    /**
-     * Format a monetary amount according to this currency's display rules.
-     */
-    public function format(float $amount): string
+    public function money(int $minorAmount): Money
     {
-        $formattedNumber = number_format(
-            $amount,
-            $this->precision,
-            $this->decimal_mark ?? '.',
-            $this->thousands_separator ?? ','
-        );
+        return Money::minor($minorAmount, $this->code, $this->precision);
+    }
 
-        if ($this->symbol_first) {
-            return sprintf('%s %s', $this->symbol, $formattedNumber);
+    public function formatMinor(int $minorAmount): string
+    {
+        $money = $this->money($minorAmount);
+        $major = $money->toMajor();
+        $sign = str_starts_with($major, '-') ? '-' : '';
+        $unsigned = ltrim($major, '-');
+
+        if ($this->precision === 0) {
+            $formatted = number_format((float) $unsigned, 0, $this->decimal_mark, $this->thousands_separator);
+        } else {
+            [$whole, $fraction] = explode('.', $unsigned);
+            $formatted = number_format((float) $whole, 0, $this->decimal_mark, $this->thousands_separator)
+                . $this->decimal_mark . $fraction;
         }
 
-        return sprintf('%s %s', $formattedNumber, $this->symbol);
-    }
-
-    public function subUnitMultiplier(): int
-    {
-        return (int) (10 ** $this->precision);
-    }
-
-    public function toMinorUnits(float|int $amount): int
-    {
-        return (int) round(((float) $amount) * $this->subUnitMultiplier());
-    }
-
-    public function toMajorUnits(int $minorUnits): float
-    {
-        $mult = $this->subUnitMultiplier();
-
-        return $mult > 0 ? round($minorUnits / $mult, $this->precision) : (float) $minorUnits;
-    }
-
-    public function formatMinor(int $minorUnits): string
-    {
-        return $this->format($this->toMajorUnits($minorUnits));
-    }
-
-    public function subUnitName(): string
-    {
-        return match (strtoupper($this->code)) {
-            'USD', 'EUR', 'CAD', 'AUD' => 'Cents',
-            'GBP' => 'Pence',
-            'EGP' => 'Piasters',
-            'SAR' => 'Halalas',
-            'AED', 'KWD', 'BHD', 'IQD', 'JOD' => 'Fils',
-            default => 'Cents',
-        };
-    }
-
-    public function subUnitSymbol(): string
-    {
-        return match (strtoupper($this->code)) {
-            'USD' => '¢',
-            'EUR' => 'c',
-            'GBP' => 'p',
-            'EGP' => 'pt',
-            default => '¢',
-        };
-    }
-
-    public function formatSubUnit(int $subUnits, bool $useSymbol = true): string
-    {
-        $symbol = $useSymbol ? $this->subUnitSymbol() : $this->subUnitName();
-
-        return sprintf('%d %s', $subUnits, $symbol);
-    }
-
-    public function splitUnits(float|int $amount): array
-    {
-        $floatVal = (float) $amount;
-        $major = (int) floor(abs($floatVal));
-        $mult = $this->subUnitMultiplier();
-        $minor = $mult > 0 ? (int) round((abs($floatVal) - $major) * $mult) : 0;
-
-        return [
-            'major' => $major,
-            'minor' => $minor,
-            'formatted' => $this->format($floatVal),
-        ];
-    }
-
-    public function formatMajorAndSubUnit(float|int $amount, bool $useSymbol = false): string
-    {
-        $split = $this->splitUnits($amount);
-        $majorStr = number_format($split['major'], 0, $this->decimal_mark ?? '.', $this->thousands_separator ?? ',');
-        $subUnitLabel = $useSymbol ? $this->subUnitSymbol() : $this->subUnitName();
-
-        if ($this->symbol_first) {
-            return sprintf('%s %s and %d %s', $this->symbol, $majorStr, $split['minor'], $subUnitLabel);
-        }
-
-        return sprintf('%s %s and %d %s', $majorStr, $this->symbol, $split['minor'], $subUnitLabel);
+        return $this->symbol_first
+            ? "{$sign}{$this->symbol} {$formatted}"
+            : "{$sign}{$formatted} {$this->symbol}";
     }
 }

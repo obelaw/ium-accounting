@@ -7,4 +7,5 @@ namespace Obelaw\Ium\Accounting\Enums;
 enum DepreciationMethod: string
 {
     case STRAIGHT_LINE = 'straight_line';
+    case DECLINING_BALANCE = 'declining_balance';
 }

@@ -4,16 +4,10 @@ declare(strict_types=1);
 
 namespace Obelaw\Ium\Accounting\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Obelaw\Ium\Accounting\Base\ModelBase;
 use Obelaw\Ium\Accounting\Enums\FiscalPeriodStatus;
 
-/**
- * Fiscal Accounting Year.
- *
- * Automatically maps to table `ium_accounting_fiscal_years`.
- */
 class FiscalYear extends ModelBase
 {
     protected $table = 'fiscal_years';
@@ -25,23 +19,20 @@ class FiscalYear extends ModelBase
         'status',
         'closed_at',
         'closed_by',
+        'metadata',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'start_date' => 'date:Y-m-d',
+        'end_date' => 'date:Y-m-d',
         'status' => FiscalPeriodStatus::class,
         'closed_at' => 'datetime',
+        'metadata' => 'array',
     ];
 
     public function periods(): HasMany
     {
         return $this->hasMany(FiscalPeriod::class, 'fiscal_year_id')->orderBy('period_number');
-    }
-
-    public function scopeOpen(Builder $query): Builder
-    {
-        return $query->where('status', FiscalPeriodStatus::OPEN->value);
     }
 
     public function isOpen(): bool

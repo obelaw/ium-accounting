@@ -4,19 +4,9 @@ declare(strict_types=1);
 
 namespace Obelaw\Ium\Accounting\Base;
 
-use Obelaw\Ium\Bases\ModelBase as StackBaseModel;
+use Obelaw\Ium\Bases\ModelBase as IumModelBase;
 
-/**
- * Accounting module base model.
- *
- * Applies the `ium_accounting_` table prefix.
- */
-class ModelBase extends StackBaseModel
+abstract class ModelBase extends IumModelBase
 {
-    /**
-     * Module name for table prefixing ('ium_accounting_').
-     *
-     * @var string|null $module
-     */
-    protected ?string $module = 'accounting_';
+    protected ?string $module = 'accounting';
 }

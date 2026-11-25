@@ -4,17 +4,9 @@ declare(strict_types=1);
 
 namespace Obelaw\Ium\Accounting\Events;
 
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
 use Obelaw\Ium\Accounting\Models\JournalEntry;
 
-final class JournalEntryApproved
+final readonly class JournalEntryApproved
 {
-    use Dispatchable;
-    use SerializesModels;
-
-    public function __construct(
-        public readonly JournalEntry $entry,
-        public readonly string $approverId
-    ) {}
+    public function __construct(public JournalEntry $entry, public string $approverId) {}
 }

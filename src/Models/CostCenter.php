@@ -10,11 +10,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Obelaw\Ium\Accounting\Base\ModelBase;
 use Obelaw\Ium\Accounting\Enums\DimensionType;
 
-/**
- * Analytical Accounting Dimension / Cost Center.
- *
- * Automatically maps to table `ium_accounting_cost_centers`.
- */
 class CostCenter extends ModelBase
 {
     protected $table = 'cost_centers';
@@ -42,12 +37,7 @@ class CostCenter extends ModelBase
 
     public function children(): HasMany
     {
-        return $this->hasMany(self::class, 'parent_id');
-    }
-
-    public function journalLines(): HasMany
-    {
-        return $this->hasMany(JournalEntryLine::class, 'cost_center_id');
+        return $this->hasMany(self::class, 'parent_id')->orderBy('code');
     }
 
     public function scopeActive(Builder $query): Builder
