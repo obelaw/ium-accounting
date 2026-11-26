@@ -49,5 +49,9 @@ final class ObelawAccountingServiceProvider extends ServiceProvider
         }
 
         AboutCommand::add('Obelawium', static fn () => ['Obelawium Accounting' => '1.0.0']);
+
+        if (class_exists(\Obelaw\Ium\Mcp\Facades\IumMcp::class)) {
+            \Obelaw\Ium\Mcp\Facades\IumMcp::registerToolset(\Obelaw\Ium\Accounting\Mcp\AccountingToolset::class);
+        }
     }
 }
